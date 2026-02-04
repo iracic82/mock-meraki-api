@@ -334,10 +334,16 @@ All responses match official Meraki API v1 specification:
 │   ├── topologies/         # Network topologies
 │   └── seed_dynamodb.py    # Seeding script
 ├── docs/
+│   ├── TOPOLOGY_GUIDE.md   # Contributing & self-hosting guide
 │   └── DATA_GENERATION.md  # Detailed docs
 ├── template.yaml           # SAM template
+├── CONTRIBUTING.md         # Quick contribution guide
 └── README.md
 ```
+
+## Contributing
+
+Want to add a new topology? See [CONTRIBUTING.md](CONTRIBUTING.md) or the full [Topology Guide](docs/TOPOLOGY_GUIDE.md).
 
 ## Security Notes
 
