@@ -11,6 +11,62 @@ This project provides a serverless mock Meraki API that returns realistic networ
 - Development and integration testing
 - Training and educational purposes
 
+## Infoblox Integration Workflow
+
+```
+┌──────────────────────────────────────┐
+│     Infoblox Universal DDI Portal    │
+│                                      │
+│  Configure → Networking → Discovery  │
+│  → Third Party IPAM → Meraki         │
+└──────────────────┬───────────────────┘
+                   │
+                   │  HTTPS REST API Calls
+                   │  X-Cisco-Meraki-API-Key: <your-key>
+                   │
+                   ▼
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│   🌐  https://meraki-api.highvelocitynetworking.com          │
+│                                                              │
+│   Mock Meraki Dashboard API v1                               │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+                   │
+                   │  API Calls Flow:
+                   │
+                   ▼
+    ┌─────────────────────────────────────────────────────┐
+    │  1. GET /api/v1/organizations                       │
+    │     └─► Returns: Acme Corporation (ID: 883652)      │
+    │                                                     │
+    │  2. GET /api/v1/organizations/{orgId}/networks      │
+    │     └─► Returns: 21 networks (HQ + 20 branches)     │
+    │                                                     │
+    │  3. GET /api/v1/organizations/{orgId}/devices       │
+    │     └─► Returns: 134 devices (MX, MS, MR, MG)       │
+    │                                                     │
+    │  4. GET /api/v1/networks/{netId}/appliance/vlans    │
+    │     └─► Returns: VLANs with subnets per network     │
+    │                                                     │
+    │  5. GET /api/v1/networks/{netId}/clients            │
+    │     └─► Returns: 739 clients with IPs & MACs        │
+    └─────────────────────────────────────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────┐
+│     Infoblox Asset Inventory         │
+│                                      │
+│  ✓ 56 IP Spaces (Networks/VLANs)     │
+│  ✓ 873 Assets (Devices + Clients)    │
+│  ✓ Subnet utilization data           │
+└──────────────────────────────────────┘
+```
+
+**Live API Endpoint:** `https://meraki-api.highvelocitynetworking.com`
+
+Contact **Igor Racic** for API access credentials.
+
 ## Architecture
 
 ```
