@@ -486,16 +486,59 @@ Look at existing topologies for reference:
 |----------|-------------|------|
 | `hub_spoke` | Enterprise with HQ + 20 branches | `seed_data/topologies/hub_spoke.py` |
 
-## CI Validation
+## CI/CD Workflows
 
-When you submit a PR, GitHub Actions will:
+### Validation (Automatic on all PRs)
+
+When you submit a PR that touches `seed_data/topologies/**` or `seed_data/generators/**`, GitHub Actions will automatically:
 
 1. **Validate topology structure** - Check required fields
 2. **Validate Meraki API compliance** - Check entity fields
-3. **Run linting** - Check code style
-4. **Report statistics** - Show device/client counts
+3. **Run unit tests** - Ensure nothing is broken
+4. **Run linting** - Check code style
+5. **Report statistics** - Show device/client counts
 
 Your PR must pass all checks before merging.
+
+### Deployment (Conditional)
+
+| What Changed | Validation | Deploy to Production |
+|--------------|------------|---------------------|
+| `hub_spoke.py` | ✓ Automatic | ✓ Automatic |
+| New topology (e.g., `retail.py`) | ✓ Automatic | Manual trigger required |
+| Generators (`generators/*.py`) | ✓ Automatic | Manual trigger required |
+| `mesh.py`, `multi_org.py` | ✓ Automatic | Manual trigger required |
+
+**Why this design?**
+- The hosted demo (`meraki-api.highvelocitynetworking.com`) runs `hub_spoke` topology
+- Changes to `hub_spoke.py` auto-deploy to keep the demo current
+- New topologies are validated but NOT auto-deployed (protects production data)
+- Contributors can self-host and manually deploy their topologies
+
+### Manual Deployment
+
+To deploy a topology manually (maintainers only):
+
+1. Go to **Actions** → **Deploy Topology**
+2. Click **Run workflow**
+3. Select topology (`hub_spoke`, `mesh`, `multi_org`, or `all`)
+4. Check "Clear existing data" if you want a fresh start
+5. Click **Run workflow**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Workflow Summary                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  PR Created ──► Validate Topologies (automatic)                 │
+│                 └── All topologies checked                      │
+│                                                                  │
+│  PR Merged ───► hub_spoke.py changed?                           │
+│                 ├── Yes ──► Deploy Topology (automatic)         │
+│                 └── No  ──► No deploy (manual if needed)        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## Questions?
 
