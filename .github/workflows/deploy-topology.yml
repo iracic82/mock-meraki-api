@@ -4,8 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'seed_data/topologies/**'
+      # Auto-deploy only for hub_spoke (production topology)
+      - 'seed_data/topologies/hub_spoke.py'
       - 'seed_data/generators/**'
+  # Manual trigger for new/other topologies
   workflow_dispatch:
     inputs:
       topology:
