@@ -1,0 +1,249 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Mock Meraki Dashboard API for InfoBlox UDI Portal Testing
+  Simulates Cisco Meraki Orchestrator endpoints with realistic data
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: python3.11
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        CONFIG_TABLE: !Ref ConfigTable
+        DATA_TABLE: !Ref DataTable
+        DEFAULT_TOPOLOGY: hub_spoke
+        LOG_LEVEL: INFO
+        API_KEY_SECRET_NAME: meraki-mock-api/api-key
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - dev
+      - prod
+    Description: Deployment environment
+
+Resources:
+  # ============================================
+  # DynamoDB Tables
+  # ============================================
+
+  ConfigTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "MerakiMock_Config_${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      Tags:
+        - Key: Application
+          Value: MerakiMockAPI
+        - Key: Environment
+          Value: !Ref Environment
+
+  DataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "MerakiMock_Data_${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Application
+          Value: MerakiMockAPI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================
+  # Lambda Function
+  # ============================================
+
+  MerakiMockFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "MerakiMockAPI-${Environment}"
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Description: Mock Meraki Dashboard API Lambda function
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConfigTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:meraki-mock-api/api-key-*"
+      Events:
+        # Organization Endpoints
+        GetOrganizations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/organizations
+            Method: GET
+        GetOrganizationNetworks:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/organizations/{organizationId}/networks
+            Method: GET
+        GetOrganizationDevices:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/organizations/{organizationId}/devices
+            Method: GET
+        GetOrganizationDevicesAvailabilities:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/organizations/{organizationId}/devices/availabilities
+            Method: GET
+
+        # Network Endpoints
+        GetNetworkVlans:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/networks/{networkId}/appliance/vlans
+            Method: GET
+        GetNetworkClients:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/networks/{networkId}/clients
+            Method: GET
+        GetNetworkVlanProfiles:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/networks/{networkId}/vlanProfiles
+            Method: GET
+        GetCellularGatewaySubnetPool:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/networks/{networkId}/cellularGateway/subnetPool
+            Method: GET
+        GetSiteToSiteVpn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/networks/{networkId}/appliance/vpn/siteToSiteVpn
+            Method: GET
+
+        # Device Endpoints
+        GetDeviceClients:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/devices/{serial}/clients
+            Method: GET
+
+        # Admin Endpoints
+        GetTopologies:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /admin/topologies
+            Method: GET
+        ActivateTopology:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /admin/topology/{name}/activate
+            Method: PUT
+        CreateTopology:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /admin/topology
+            Method: POST
+        GetActiveTopology:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /admin/topology/active
+            Method: GET
+        HealthCheck:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /health
+            Method: GET
+
+  # ============================================
+  # API Gateway
+  # ============================================
+
+  MerakiMockApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "MerakiMockAPI-${Environment}"
+      StageName: Prod
+      Description: Mock Meraki Dashboard API for InfoBlox UDI testing
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,X-Cisco-Meraki-API-Key,X-Mock-Topology'"
+        AllowMethods: "'GET,PUT,POST,OPTIONS'"
+      Auth:
+        DefaultAuthorizer: NONE
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingBurstLimit: 1000
+          ThrottlingRateLimit: 500
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${MerakiMockApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+
+  FunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt MerakiMockFunction.Arn
+
+  ConfigTableName:
+    Description: DynamoDB Config table name
+    Value: !Ref ConfigTable
+
+  DataTableName:
+    Description: DynamoDB Data table name
+    Value: !Ref DataTable
