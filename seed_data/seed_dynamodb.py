@@ -152,6 +152,53 @@ def batch_write_items(client, table_name: str, items: list, batch_size: int = 25
     return written
 
 
+def clear_table(client, table_name: str) -> int:
+    """Delete all items from a DynamoDB table."""
+    deleted = 0
+
+    # Scan and delete in batches
+    paginator = client.get_paginator('scan')
+
+    for page in paginator.paginate(
+        TableName=table_name,
+        ProjectionExpression='PK, SK'
+    ):
+        items = page.get('Items', [])
+        if not items:
+            continue
+
+        # Delete in batches of 25
+        for i in range(0, len(items), 25):
+            batch = items[i:i + 25]
+            delete_requests = [
+                {
+                    'DeleteRequest': {
+                        'Key': {
+                            'PK': item['PK'],
+                            'SK': item['SK']
+                        }
+                    }
+                }
+                for item in batch
+            ]
+
+            response = client.batch_write_item(
+                RequestItems={table_name: delete_requests}
+            )
+
+            # Handle unprocessed items
+            unprocessed = response.get('UnprocessedItems', {}).get(table_name, [])
+            while unprocessed:
+                response = client.batch_write_item(
+                    RequestItems={table_name: unprocessed}
+                )
+                unprocessed = response.get('UnprocessedItems', {}).get(table_name, [])
+
+            deleted += len(batch)
+
+    return deleted
+
+
 def create_item(
     topology: str,
     entity_type: str,
@@ -360,6 +407,7 @@ def main():
     parser.add_argument("--config-table", type=str, default="MerakiMock_Config_prod", help="Config table name")
     parser.add_argument("--data-table", type=str, default="MerakiMock_Data_prod", help="Data table name")
     parser.add_argument("--default-topology", type=str, default="hub_spoke", help="Default active topology")
+    parser.add_argument("--clear", action="store_true", help="Clear all data from tables before seeding")
 
     args = parser.parse_args()
 
@@ -386,6 +434,15 @@ def main():
     if args.local:
         print("\nCreating tables (if needed)...")
         create_tables_if_not_exist(client, args.config_table, args.data_table)
+
+    # Clear tables if requested
+    if args.clear:
+        print("\nClearing existing data...")
+        config_deleted = clear_table(client, args.config_table)
+        print(f"  Deleted {config_deleted} items from {args.config_table}")
+        data_deleted = clear_table(client, args.data_table)
+        print(f"  Deleted {data_deleted} items from {args.data_table}")
+        print("  Tables cleared!")
 
     # Generate and seed topologies
     topologies_to_seed = []

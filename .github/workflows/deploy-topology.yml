@@ -1,0 +1,81 @@
+name: Deploy Topology
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'seed_data/topologies/**'
+      - 'seed_data/generators/**'
+  workflow_dispatch:
+    inputs:
+      topology:
+        description: 'Topology to deploy'
+        required: true
+        default: 'hub_spoke'
+        type: choice
+        options:
+          - hub_spoke
+          - mesh
+          - multi_org
+          - all
+      clear:
+        description: 'Clear existing data before seeding'
+        required: true
+        default: true
+        type: boolean
+
+# Required for OIDC
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate topology before deploy
+        run: python scripts/validate_topologies.py
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::905418046272:role/MockMerakiGitHubDeployRole
+          aws-region: eu-west-1
+
+      - name: Deploy topology data
+        env:
+          TOPOLOGY: ${{ github.event.inputs.topology || 'hub_spoke' }}
+          CLEAR_DATA: ${{ github.event.inputs.clear || 'true' }}
+        run: |
+          echo "Deploying topology: $TOPOLOGY"
+          echo "Clear existing data: $CLEAR_DATA"
+
+          CLEAR_FLAG=""
+          if [ "$CLEAR_DATA" = "true" ]; then
+            CLEAR_FLAG="--clear"
+          fi
+
+          python seed_data/seed_dynamodb.py \
+            --region eu-west-1 \
+            --topology "$TOPOLOGY" \
+            --default-topology hub_spoke \
+            $CLEAR_FLAG
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment complete!"
+          echo "API endpoint: https://meraki-api.highvelocitynetworking.com"
