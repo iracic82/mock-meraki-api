@@ -4,10 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      # Auto-deploy only for hub_spoke (production topology)
+      # Auto-deploy only when hub_spoke.py changes
       - 'seed_data/topologies/hub_spoke.py'
-      - 'seed_data/generators/**'
-  # Manual trigger for new/other topologies
+  # Manual trigger for everything else
   workflow_dispatch:
     inputs:
       topology:
