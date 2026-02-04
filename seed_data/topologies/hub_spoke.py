@@ -214,7 +214,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         branch_vlans = network_gen.generate_vlans_for_network(
             network_id=network_id,
             vlan_types=["corporate", "guest", "voice"] if branch_config["clients"] > 20 else ["corporate", "guest"],
-            base_third_octet=100 + i * 10
+            base_third_octet=20 + i * 5  # Keep in valid range (20-115 for 20 branches)
         )
         vlans.extend(branch_vlans)
 
