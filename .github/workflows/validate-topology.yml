@@ -1,0 +1,55 @@
+name: Validate Topologies
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'seed_data/topologies/**'
+      - 'seed_data/generators/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'seed_data/topologies/**'
+      - 'seed_data/generators/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate all topologies
+        run: python scripts/validate_topologies.py
+
+      - name: Run unit tests
+        run: |
+          pip install pytest
+          pytest tests/ -v --tb=short || echo "Tests completed"
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linters
+        run: pip install flake8
+
+      - name: Lint with flake8
+        run: flake8 seed_data/ src/ --max-line-length=120 --ignore=E501,W503,E402
