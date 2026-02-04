@@ -141,25 +141,206 @@ python scripts/validate_topologies.py
 #   ✓ Topology "my_topology" is valid
 ```
 
-### 4. Test Deployment (Optional)
-
-Deploy to your own AWS account to test:
+### 4. Submit PR
 
 ```bash
-# Build
-sam build
-
-# Deploy to your AWS
-sam deploy --guided --profile your-profile --region eu-west-1
-
-# Seed your topology
-python seed_data/seed_dynamodb.py \
-    --profile your-profile \
-    --region eu-west-1 \
-    --topology my_topology
+git checkout -b add-my-topology
+git add seed_data/topologies/my_topology.py
+git commit -m "Add my_topology: description of your topology"
+git push origin add-my-topology
 ```
 
-### 5. Submit PR
+Then open a Pull Request. CI will automatically validate your topology.
+
+---
+
+## Self-Hosting Guide
+
+Want to run your own Mock Meraki API? Follow this guide to deploy to your AWS account.
+
+### Prerequisites
+
+| Requirement | Installation |
+|-------------|--------------|
+| AWS Account | [Sign up](https://aws.amazon.com/) |
+| AWS CLI | `brew install awscli` or [AWS docs](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) |
+| AWS SAM CLI | `brew install aws-sam-cli` or [SAM docs](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) |
+| Python 3.11+ | `brew install python@3.11` |
+| Docker | [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for local testing) |
+
+Configure AWS credentials:
+```bash
+aws configure --profile my-profile
+# Enter your AWS Access Key ID, Secret, and preferred region
+```
+
+### What Gets Deployed
+
+The SAM template (`template.yaml`) creates these AWS resources:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Your AWS Account                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  API Gateway (REST API)                                      │
+│  └── /api/v1/* routes                                        │
+│                                                              │
+│  Lambda Function (Python 3.11)                               │
+│  └── Handles all Meraki API endpoints                        │
+│                                                              │
+│  DynamoDB Tables (On-Demand billing)                         │
+│  ├── MerakiMock_Config  (topology config)                    │
+│  └── MerakiMock_Data    (all entity data)                    │
+│                                                              │
+│  IAM Role                                                    │
+│  └── Lambda execution role with DynamoDB access              │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 1: Clone and Install
+
+```bash
+git clone https://github.com/iracic82/mock-meraki-api.git
+cd mock-meraki-api
+pip install -r requirements.txt
+```
+
+### Step 2: Build
+
+```bash
+sam build
+```
+
+This packages the Lambda function and dependencies.
+
+### Step 3: Deploy
+
+```bash
+sam deploy --guided --profile my-profile --region eu-west-1
+```
+
+SAM will prompt you for:
+- **Stack Name**: e.g., `mock-meraki-api`
+- **AWS Region**: e.g., `eu-west-1`
+- **Confirm changes**: Yes
+- **Allow IAM role creation**: Yes
+- **Save arguments to samconfig.toml**: Yes (for future deploys)
+
+**Note:** `samconfig.toml` contains your deployment settings. It's gitignored to avoid committing profile names.
+
+### Step 4: Get Your API URL
+
+After deployment, SAM outputs your API URL:
+
+```
+Outputs
+-----------------------------------------
+Key                 MerakiMockApiUrl
+Description         API Gateway endpoint URL
+Value               https://abc123xyz.execute-api.eu-west-1.amazonaws.com/Prod
+```
+
+Or retrieve it later:
+```bash
+aws cloudformation describe-stacks \
+    --stack-name mock-meraki-api \
+    --profile my-profile \
+    --region eu-west-1 \
+    --query 'Stacks[0].Outputs[?OutputKey==`MerakiMockApiUrl`].OutputValue' \
+    --output text
+```
+
+### Step 5: Seed Your Topology
+
+```bash
+python seed_data/seed_dynamodb.py \
+    --profile my-profile \
+    --region eu-west-1 \
+    --topology hub_spoke
+```
+
+Available topologies: `hub_spoke`, `mesh`, `multi_org`, or your custom topology.
+
+### Step 6: Test Your API
+
+```bash
+# Set your API URL
+export API_URL="https://abc123xyz.execute-api.eu-west-1.amazonaws.com/Prod"
+
+# Test organizations endpoint
+curl -H "X-Cisco-Meraki-API-Key: any-key-works" \
+     "$API_URL/api/v1/organizations"
+
+# Test networks
+curl -H "X-Cisco-Meraki-API-Key: any-key-works" \
+     "$API_URL/api/v1/organizations/883652/networks"
+
+# Test devices
+curl -H "X-Cisco-Meraki-API-Key: any-key-works" \
+     "$API_URL/api/v1/organizations/883652/devices"
+```
+
+### Cost Estimate
+
+| Resource | Estimated Monthly Cost |
+|----------|----------------------|
+| API Gateway | ~$0.50 (low traffic) |
+| Lambda | ~$0.10 (free tier covers most) |
+| DynamoDB | ~$1-2 (on-demand, ~10MB data) |
+| **Total** | **~$2-3/month** |
+
+*Costs vary based on usage. Free tier covers most development/demo usage.*
+
+### Optional: Custom Domain
+
+To add a custom domain like `api.yourdomain.com`:
+
+1. **Request ACM Certificate** (must be in `us-east-1` for edge-optimized API):
+   ```bash
+   aws acm request-certificate \
+       --domain-name api.yourdomain.com \
+       --validation-method DNS \
+       --region us-east-1 \
+       --profile my-profile
+   ```
+
+2. **Add DNS validation record** to your domain
+
+3. **Create API Gateway custom domain** and map to your API
+
+4. **Create Route 53 alias record** pointing to the API Gateway domain
+
+See [AWS docs](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html) for detailed instructions.
+
+### Optional: WAF Protection
+
+For production use, add AWS WAF:
+
+```bash
+# Create WAF Web ACL with rate limiting
+aws wafv2 create-web-acl \
+    --name mock-meraki-waf \
+    --scope REGIONAL \
+    --default-action Allow={} \
+    --rules '[{"Name":"RateLimit","Priority":1,"Statement":{"RateBasedStatement":{"Limit":1000,"AggregateKeyType":"IP"}},"Action":{"Block":{}},"VisibilityConfig":{"SampledRequestsEnabled":true,"CloudWatchMetricsEnabled":true,"MetricName":"RateLimit"}}]' \
+    --visibility-config SampledRequestsEnabled=true,CloudWatchMetricsEnabled=true,MetricName=MockMerakiWAF \
+    --region eu-west-1 \
+    --profile my-profile
+```
+
+### Cleanup
+
+To delete all resources:
+
+```bash
+sam delete --stack-name mock-meraki-api --profile my-profile --region eu-west-1
+```
+
+---
+
+### 5. Submit PR (After Testing)
 
 ```bash
 git checkout -b add-my-topology
