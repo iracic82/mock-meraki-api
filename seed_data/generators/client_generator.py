@@ -319,7 +319,9 @@ class ClientGenerator:
             "adaptivePolicyGroup": base_client["adaptivePolicyGroup"],
             "pskGroup": base_client["pskGroup"],
             "status": base_client["status"],
-            "usage": base_client["usage"]
+            "usage": base_client["usage"],
+            # Internal field for seeding - not part of Meraki API response
+            "_network_id": network_id
         }
 
     def generate_device_client(

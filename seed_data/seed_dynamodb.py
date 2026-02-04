@@ -305,26 +305,22 @@ def seed_topology(client, data_table: str, topology_data: dict):
 
     # Network Clients
     for net_client in topology_data["network_clients"]:
-        # Find network from device serial
-        network_id = None
-        if net_client.get("recentDeviceSerial"):
+        # Use _network_id if available (set by generator), fallback to lookup
+        network_id = net_client.get("_network_id")
+
+        if not network_id and net_client.get("recentDeviceSerial"):
             device = next((d for d in topology_data["devices"] if d["serial"] == net_client["recentDeviceSerial"]), None)
             if device:
                 network_id = device["networkId"]
-        if not network_id:
-            # Try to find from VLAN
-            for network in topology_data["networks"]:
-                network_vlans = [v for v in topology_data["vlans"] if v["networkId"] == network["id"]]
-                if any(str(v["id"]) == net_client.get("vlan") for v in network_vlans):
-                    network_id = network["id"]
-                    break
 
         if network_id:
+            # Remove internal field before storing
+            client_data = {k: v for k, v in net_client.items() if not k.startswith("_")}
             items.append(create_item(
                 topology=topology_name,
                 entity_type=ENTITY_NETWORK_CLIENT,
                 entity_id=net_client["id"],
-                data=net_client,
+                data=client_data,
                 parent_type=ENTITY_NETWORK,
                 parent_id=network_id
             ))
