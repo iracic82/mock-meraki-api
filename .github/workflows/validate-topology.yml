@@ -11,6 +11,7 @@ on:
     paths:
       - 'seed_data/topologies/**'
       - 'seed_data/generators/**'
+  workflow_dispatch:  # Manual trigger for testing
 
 jobs:
   validate:
