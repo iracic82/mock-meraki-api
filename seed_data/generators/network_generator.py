@@ -363,7 +363,7 @@ class NetworkGenerator:
         """
         return {
             "deploymentMode": "routed",
-            "cidr": cidr,
+            "cidr": f"{cidr}/{mask}",
             "mask": mask,
             "subnets": [
                 {
