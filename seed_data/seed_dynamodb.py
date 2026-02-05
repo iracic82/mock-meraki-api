@@ -37,6 +37,7 @@ ENTITY_ORGANIZATION = "organization"
 ENTITY_NETWORK = "network"
 ENTITY_DEVICE = "device"
 ENTITY_DEVICE_AVAILABILITY = "device_availability"
+ENTITY_DEVICE_STATUS = "device_status"
 ENTITY_VLAN = "vlan"
 ENTITY_VLAN_PROFILE = "vlan_profile"
 ENTITY_CLIENT = "client"
@@ -275,6 +276,20 @@ def seed_topology(client, data_table: str, topology_data: dict):
                 entity_type=ENTITY_DEVICE_AVAILABILITY,
                 entity_id=avail["serial"],
                 data=avail,
+                parent_type=ENTITY_ORGANIZATION,
+                parent_id=device["organizationId"]
+            ))
+
+    # Device Statuses (for /devices/statuses endpoint)
+    for status in topology_data.get("device_statuses", []):
+        # Find device to get org ID
+        device = next((d for d in topology_data["devices"] if d["serial"] == status["serial"]), None)
+        if device:
+            items.append(create_item(
+                topology=topology_name,
+                entity_type=ENTITY_DEVICE_STATUS,
+                entity_id=status["serial"],
+                data=status,
                 parent_type=ENTITY_ORGANIZATION,
                 parent_id=device["organizationId"]
             ))

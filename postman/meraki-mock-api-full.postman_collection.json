@@ -1,0 +1,1102 @@
+{
+  "info": {
+    "name": "Mock Meraki API - Full",
+    "_postman_id": "mock-meraki-api-full",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://meraki-api.highvelocitynetworking.com"
+    },
+    {
+      "key": "apiKey",
+      "value": "9168c778b45b4abc5b64cfbcf2d1bcec3e931536"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Cisco-Meraki-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Organizations",
+      "item": [
+        {
+          "name": "Get Organizations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations"
+          }
+        },
+        {
+          "name": "Get Org Networks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/883652/networks"
+          }
+        },
+        {
+          "name": "Get Org Devices",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/883652/devices"
+          }
+        },
+        {
+          "name": "Get Org Devices Statuses",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/883652/devices/statuses"
+          }
+        },
+        {
+          "name": "Get Org Devices Availabilities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/883652/devices/availabilities"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Networks - All 21",
+      "item": [
+        {
+          "name": "N_BR001 (Branch-NYC)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR001/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR001/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR001/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR001/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR001/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR002 (Branch-Chicago)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR002/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR002/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR002/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR002/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR002/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR003 (Branch-LA)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR003/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR003/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR003/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR003/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR003/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR004 (Branch-Seattle)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR004/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR004/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR004/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR004/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR004/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR005 (Branch-Austin)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR005/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR005/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR005/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR005/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR005/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR006 (Branch-Denver)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR006/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR006/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR006/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR006/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR006/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR007 (Branch-Boston)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR007/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR007/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR007/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR007/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR007/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR008 (Branch-Atlanta)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR008/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR008/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR008/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR008/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR008/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR009 (Branch-Miami)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR009/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR009/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR009/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR009/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR009/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR010 (Branch-Dallas)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR010/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR010/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR010/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR010/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR010/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR011 (Branch-Phoenix)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR011/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR011/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR011/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR011/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR011/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR012 (Branch-Portland)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR012/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR012/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR012/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR012/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR012/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR013 (Branch-Minneapolis)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR013/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR013/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR013/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR013/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR013/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR014 (Branch-Detroit)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR014/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR014/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR014/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR014/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR014/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR015 (Branch-Philly)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR015/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR015/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR015/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR015/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR015/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR016 (Remote-SanDiego)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR016/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR016/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR016/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR016/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR016/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR017 (Remote-Houston)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR017/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR017/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR017/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR017/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR017/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR018 (Remote-Charlotte)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR018/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR018/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR018/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR018/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR018/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR019 (Remote-SaltLake)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR019/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR019/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR019/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR019/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR019/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_BR020 (Remote-Warehouse)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR020/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR020/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR020/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR020/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_BR020/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        },
+        {
+          "name": "N_HQ001 (HQ-Campus)",
+          "item": [
+            {
+              "name": "Clients",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_HQ001/clients"
+              }
+            },
+            {
+              "name": "VLANs",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_HQ001/appliance/vlans"
+              }
+            },
+            {
+              "name": "VLAN Profiles",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_HQ001/vlanProfiles"
+              }
+            },
+            {
+              "name": "VPN",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_HQ001/appliance/vpn/siteToSiteVpn"
+              }
+            },
+            {
+              "name": "Cellular",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/v1/networks/N_HQ001/cellularGateway/subnetPool"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Device Clients - MX Appliances",
+      "item": [
+        {
+          "name": "Q21A-5UGX-BRYT (Branch-Austin-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q21A-5UGX-BRYT/clients"
+          }
+        },
+        {
+          "name": "Q21L-526R-QGKC (Branch-NYC-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q21L-526R-QGKC/clients"
+          }
+        },
+        {
+          "name": "Q26M-66SZ-VETC (Branch-Phoenix-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q26M-66SZ-VETC/clients"
+          }
+        },
+        {
+          "name": "Q26O-UGOP-RRUM (Branch-Detroit-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q26O-UGOP-RRUM/clients"
+          }
+        },
+        {
+          "name": "Q282-2Y0E-AP50 (Branch-Minneapolis-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q282-2Y0E-AP50/clients"
+          }
+        },
+        {
+          "name": "Q29Z-QNKY-P1M2 (Branch-Atlanta-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q29Z-QNKY-P1M2/clients"
+          }
+        },
+        {
+          "name": "Q2CW-QTHR-GUEW (Remote-SaltLake-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2CW-QTHR-GUEW/clients"
+          }
+        },
+        {
+          "name": "Q2D1-RL6Z-AZYX (Remote-Warehouse-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2D1-RL6Z-AZYX/clients"
+          }
+        },
+        {
+          "name": "Q2E0-IFD0-TVBD (HQ-MX-01)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2E0-IFD0-TVBD/clients"
+          }
+        },
+        {
+          "name": "Q2I6-S7PK-67IL (Branch-Boston-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2I6-S7PK-67IL/clients"
+          }
+        },
+        {
+          "name": "Q2KJ-YMJB-T35Y (Branch-Seattle-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2KJ-YMJB-T35Y/clients"
+          }
+        },
+        {
+          "name": "Q2MV-W5OX-IO25 (Branch-Portland-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2MV-W5OX-IO25/clients"
+          }
+        },
+        {
+          "name": "Q2N5-ROUE-S0MX (Remote-Charlotte-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2N5-ROUE-S0MX/clients"
+          }
+        },
+        {
+          "name": "Q2ND-JM5G-H2IJ (Branch-LA-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2ND-JM5G-H2IJ/clients"
+          }
+        },
+        {
+          "name": "Q2OT-E0Q3-2RV2 (Remote-Houston-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2OT-E0Q3-2RV2/clients"
+          }
+        },
+        {
+          "name": "Q2PG-SF3Y-N72B (Branch-Chicago-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2PG-SF3Y-N72B/clients"
+          }
+        },
+        {
+          "name": "Q2QP-Y6N7-QLBW (Branch-Miami-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2QP-Y6N7-QLBW/clients"
+          }
+        },
+        {
+          "name": "Q2RN-0T1K-KUW6 (Remote-SanDiego-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2RN-0T1K-KUW6/clients"
+          }
+        },
+        {
+          "name": "Q2U2-G3RX-OKPI (Branch-Dallas-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2U2-G3RX-OKPI/clients"
+          }
+        },
+        {
+          "name": "Q2XO-3PEO-J3M4 (Branch-Denver-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2XO-3PEO-J3M4/clients"
+          }
+        },
+        {
+          "name": "Q2YX-2OWI-L4LT (Branch-Philly-MX)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/Q2YX-2OWI-L4LT/clients"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "Get Topologies",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/topologies"
+          }
+        },
+        {
+          "name": "Get Active Topology",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/topology/active"
+          }
+        }
+      ]
+    }
+  ]
+}

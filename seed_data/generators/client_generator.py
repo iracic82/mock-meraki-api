@@ -200,8 +200,8 @@ class ClientGenerator:
         now = datetime.utcnow()
         first_seen = now - timedelta(days=random.randint(1, 90))
         last_seen = now - timedelta(minutes=random.randint(0, 60))
-        first_seen_ts = int(first_seen.timestamp())
-        last_seen_ts = int(last_seen.timestamp())
+        first_seen_ts = str(int(first_seen.timestamp()))
+        last_seen_ts = str(int(last_seen.timestamp()))
 
         # Get usage pattern based on device type
         usage_patterns = {

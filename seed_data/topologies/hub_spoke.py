@@ -33,6 +33,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
     networks = []
     devices = []
     device_availabilities = []
+    device_statuses = []
     vlans = []
     vlan_profiles = []
     network_clients = []
@@ -81,7 +82,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         ],
     }
 
-    hq_devices, hq_availabilities = device_gen.generate_devices_for_network(
+    hq_devices, hq_availabilities, hq_statuses = device_gen.generate_devices_for_network(
         network_id=hq_network_id,
         organization_id=org_id,
         location=hq_location,
@@ -90,6 +91,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
     )
     devices.extend(hq_devices)
     device_availabilities.extend(hq_availabilities)
+    device_statuses.extend(hq_statuses)
 
     # HQ VLANs
     hq_vlans = network_gen.generate_vlans_for_network(
@@ -200,7 +202,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
             mg["tags"] = ["cellular-gateway", "wan-backup"]
 
         # Generate devices
-        branch_devices, branch_availabilities = device_gen.generate_devices_for_network(
+        branch_devices, branch_availabilities, branch_statuses = device_gen.generate_devices_for_network(
             network_id=network_id,
             organization_id=org_id,
             location=location,
@@ -209,6 +211,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         )
         devices.extend(branch_devices)
         device_availabilities.extend(branch_availabilities)
+        device_statuses.extend(branch_statuses)
 
         # VLANs (simpler for branches)
         branch_vlans = network_gen.generate_vlans_for_network(
@@ -260,6 +263,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         "networks": networks,
         "devices": devices,
         "device_availabilities": device_availabilities,
+        "device_statuses": device_statuses,
         "vlans": vlans,
         "vlan_profiles": vlan_profiles,
         "network_clients": network_clients,

@@ -46,6 +46,7 @@ def generate_mesh_topology(seed: int = 43) -> dict:
     networks = []
     devices = []
     device_availabilities = []
+    device_statuses = []
     vlans = []
     vlan_profiles = []
     network_clients = []
@@ -140,7 +141,7 @@ def generate_mesh_topology(seed: int = 43) -> dict:
         }
 
         # Generate devices
-        dc_devices, dc_availabilities = device_gen.generate_devices_for_network(
+        dc_devices, dc_availabilities, dc_statuses = device_gen.generate_devices_for_network(
             network_id=network_id,
             organization_id=org_id,
             location=location,
@@ -149,6 +150,7 @@ def generate_mesh_topology(seed: int = 43) -> dict:
         )
         devices.extend(dc_devices)
         device_availabilities.extend(dc_availabilities)
+        device_statuses.extend(dc_statuses)
 
         # VLANs - data center specific
         dc_vlans = network_gen.generate_vlans_for_network(
@@ -236,6 +238,7 @@ def generate_mesh_topology(seed: int = 43) -> dict:
         "networks": networks,
         "devices": devices,
         "device_availabilities": device_availabilities,
+        "device_statuses": device_statuses,
         "vlans": vlans,
         "vlan_profiles": vlan_profiles,
         "network_clients": network_clients,

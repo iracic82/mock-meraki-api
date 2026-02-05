@@ -1,0 +1,169 @@
+{
+  "info": {
+    "name": "Mock Meraki API",
+    "_postman_id": "mock-meraki-api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://meraki-api.highvelocitynetworking.com"
+    },
+    {
+      "key": "apiKey",
+      "value": "9168c778b45b4abc5b64cfbcf2d1bcec3e931536"
+    },
+    {
+      "key": "orgId",
+      "value": "883652"
+    },
+    {
+      "key": "networkId",
+      "value": "N_HQ001"
+    },
+    {
+      "key": "serial",
+      "value": "Q21A-5UGX-BRYT"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Cisco-Meraki-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Organizations",
+      "item": [
+        {
+          "name": "Get Organizations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations"
+          }
+        },
+        {
+          "name": "Get Organization Networks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/{{orgId}}/networks"
+          }
+        },
+        {
+          "name": "Get Organization Devices",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/{{orgId}}/devices"
+          }
+        },
+        {
+          "name": "Get Organization Devices Statuses",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/{{orgId}}/devices/statuses"
+          }
+        },
+        {
+          "name": "Get Organization Devices Availabilities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/organizations/{{orgId}}/devices/availabilities"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Networks",
+      "item": [
+        {
+          "name": "Get Network Clients",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/networks/{{networkId}}/clients"
+          }
+        },
+        {
+          "name": "Get Network VLANs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/networks/{{networkId}}/appliance/vlans"
+          }
+        },
+        {
+          "name": "Get Network VLAN Profiles",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/networks/{{networkId}}/vlanProfiles"
+          }
+        },
+        {
+          "name": "Get Site-to-Site VPN",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/networks/{{networkId}}/appliance/vpn/siteToSiteVpn"
+          }
+        },
+        {
+          "name": "Get Cellular Gateway Subnet Pool",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/networks/{{networkId}}/cellularGateway/subnetPool"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "item": [
+        {
+          "name": "Get Device Clients",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/devices/{{serial}}/clients"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "Get Topologies",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/topologies"
+          }
+        },
+        {
+          "name": "Get Active Topology",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/topology/active"
+          }
+        }
+      ]
+    }
+  ]
+}

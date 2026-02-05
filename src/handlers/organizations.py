@@ -6,6 +6,7 @@ Handles:
 - GET /organizations/{organizationId}/networks
 - GET /organizations/{organizationId}/devices
 - GET /organizations/{organizationId}/devices/availabilities
+- GET /organizations/{organizationId}/devices/statuses
 """
 
 import json
@@ -18,6 +19,7 @@ from db.dynamodb import (
     ENTITY_NETWORK,
     ENTITY_DEVICE,
     ENTITY_DEVICE_AVAILABILITY,
+    ENTITY_DEVICE_STATUS,
 )
 
 logger = logging.getLogger(__name__)
@@ -140,3 +142,41 @@ def get_organization_devices_availabilities(topology: str, organization_id: str)
 
     logger.info(f"Returning {len(availabilities)} device availabilities")
     return _response(200, availabilities)
+
+
+def get_organization_devices_statuses(topology: str, organization_id: str) -> dict:
+    """
+    Get device statuses for all devices in an organization.
+
+    This endpoint returns detailed device status information including:
+    - lastReportedAt: ISO 8601 timestamp of last device check-in
+    - status: online, offline, alerting, or dormant
+    - lanIp, gateway, publicIp: Network connectivity details
+    - ipType, primaryDns, secondaryDns: Network configuration
+    - components: Hardware components like power supplies (for switches)
+
+    Official Meraki API: GET /organizations/{organizationId}/devices/statuses
+
+    Args:
+        topology: Active topology name
+        organization_id: Organization ID
+
+    Returns:
+        API Gateway response with list of device statuses
+    """
+    logger.info(f"Getting device statuses for org {organization_id}")
+
+    db = DynamoDBClient()
+
+    # First verify organization exists
+    org = db.get_entity(topology, ENTITY_ORGANIZATION, organization_id)
+    if not org:
+        return _response(404, {"errors": [f"Organization {organization_id} not found"]})
+
+    # Get device statuses by parent organization
+    statuses = db.get_entities_by_parent(
+        topology, ENTITY_ORGANIZATION, organization_id, ENTITY_DEVICE_STATUS
+    )
+
+    logger.info(f"Returning {len(statuses)} device statuses")
+    return _response(200, statuses)

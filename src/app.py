@@ -57,6 +57,9 @@ def lambda_handler(event: dict, context: Any) -> dict:
         # Extract topology selection
         topology = _get_topology(headers, query_params)
 
+        # Log the API call for monitoring
+        logger.warning(f"API Call: {http_method} {path}")
+
         # Route to appropriate handler
         return _route_request(http_method, path, path_params, query_params, topology)
 
@@ -92,6 +95,11 @@ def _route_request(method: str, path: str, path_params: dict, query_params: dict
     if org_devices_avail_match:
         org_id = path_params.get("organizationId") or org_devices_avail_match.group(1)
         return organizations.get_organization_devices_availabilities(topology, org_id)
+
+    org_devices_statuses_match = re.match(r"/api/v1/organizations/([^/]+)/devices/statuses", path)
+    if org_devices_statuses_match:
+        org_id = path_params.get("organizationId") or org_devices_statuses_match.group(1)
+        return organizations.get_organization_devices_statuses(topology, org_id)
 
     org_devices_match = re.match(r"/api/v1/organizations/([^/]+)/devices", path)
     if org_devices_match:

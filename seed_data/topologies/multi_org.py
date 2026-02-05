@@ -148,6 +148,7 @@ def generate_multi_org_topology(seed: int = 44) -> dict:
     networks = []
     devices = []
     device_availabilities = []
+    device_statuses = []
     vlans = []
     vlan_profiles = []
     network_clients = []
@@ -235,7 +236,7 @@ def generate_multi_org_topology(seed: int = 44) -> dict:
             }
 
             # Generate devices
-            net_devices, net_availabilities = device_gen.generate_devices_for_network(
+            net_devices, net_availabilities, net_statuses = device_gen.generate_devices_for_network(
                 network_id=network_id,
                 organization_id=org_id,
                 location=location,
@@ -244,6 +245,7 @@ def generate_multi_org_topology(seed: int = 44) -> dict:
             )
             devices.extend(net_devices)
             device_availabilities.extend(net_availabilities)
+            device_statuses.extend(net_statuses)
 
             # VLANs
             vlan_types = ["corporate", "guest"]
@@ -333,6 +335,7 @@ def generate_multi_org_topology(seed: int = 44) -> dict:
         "networks": networks,
         "devices": devices,
         "device_availabilities": device_availabilities,
+        "device_statuses": device_statuses,
         "vlans": vlans,
         "vlan_profiles": vlan_profiles,
         "network_clients": network_clients,

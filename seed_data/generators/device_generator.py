@@ -203,7 +203,7 @@ class DeviceGenerator:
 
         # Add IMEI for cellular devices
         if product_type == "cellularGateway":
-            device["imei"] = ''.join(random.choices(string.digits, k=15))
+            device["imei"] = int(''.join(random.choices(string.digits, k=15)))
 
         return device
 
@@ -234,6 +234,82 @@ class DeviceGenerator:
             "tags": device.get("tags", [])
         }
 
+    def generate_device_status(self, device: dict, status: str = None) -> dict:
+        """
+        Generate device status for /organizations/{orgId}/devices/statuses endpoint.
+
+        Matches official Meraki API format with all required fields including
+        lastReportedAt, network details (gateway, DNS), and components.
+
+        Args:
+            device: Device data dictionary (from generate_device())
+            status: Optional status override. If None, generates randomly (95% online)
+
+        Returns:
+            Device status dictionary per official Meraki API format
+        """
+        # Use provided status or generate (95% online)
+        if status is None:
+            status = "online" if random.random() < 0.95 else random.choice(["alerting", "offline", "dormant"])
+
+        # Get lanIp and derive gateway from same subnet (x.x.x.1)
+        lan_ip = device.get("lanIp", "10.0.0.1")
+        ip_parts = lan_ip.rsplit('.', 1)
+        gateway = f"{ip_parts[0]}.1" if len(ip_parts) == 2 else "10.0.0.1"
+
+        # Generate lastReportedAt - recent timestamp for online devices, older for offline
+        if status == "online":
+            # Online devices reported within last 5 minutes
+            last_reported = datetime.utcnow() - timedelta(minutes=random.randint(1, 5))
+        elif status == "alerting":
+            # Alerting devices reported within last 15 minutes
+            last_reported = datetime.utcnow() - timedelta(minutes=random.randint(5, 15))
+        else:
+            # Offline/dormant devices haven't reported in hours/days
+            last_reported = datetime.utcnow() - timedelta(hours=random.randint(1, 72))
+
+        # Build base status object per official Meraki API
+        device_status = {
+            "name": device["name"],
+            "serial": device["serial"],
+            "mac": device["mac"],
+            "publicIp": device.get("wan1Ip", self._generate_wan_ip()),
+            "networkId": device["networkId"],
+            "status": status,
+            "lastReportedAt": last_reported.strftime("%Y-%m-%dT%H:%M:%S.") + f"{random.randint(0, 999999):06d}Z",
+            "lanIp": lan_ip,
+            "gateway": gateway,
+            "ipType": "dhcp" if random.random() < 0.7 else "static",
+            "primaryDns": "8.8.8.8",
+            "secondaryDns": "8.8.4.4",
+            "productType": device["productType"],
+            "model": device["model"],
+            "tags": device.get("tags", []),
+        }
+
+        # Add components for switches (power supplies)
+        if device["productType"] == "switch":
+            # MS switches may have power supply info
+            model = device.get("model", "")
+            if model.startswith("MS4") or model.startswith("MS3"):
+                # Higher-end switches have redundant power supplies
+                device_status["components"] = {
+                    "powerSupplies": [
+                        {
+                            "slot": 0,
+                            "serial": self._generate_serial("Q2"),
+                            "model": "PWR-MS320-250WAC" if "MS3" in model else "PWR-MS425-400WAC",
+                            "status": "powering",
+                            "poe": {
+                                "unit": "watts",
+                                "maximum": 370 if "MS3" in model else 740
+                            }
+                        }
+                    ]
+                }
+
+        return device_status
+
     def generate_devices_for_network(
         self,
         network_id: str,
@@ -241,7 +317,7 @@ class DeviceGenerator:
         location: dict,
         config: dict,
         network_octet: int = 0
-    ) -> tuple[list[dict], list[dict]]:
+    ) -> tuple[list[dict], list[dict], list[dict]]:
         """
         Generate all devices for a network based on configuration.
 
@@ -253,7 +329,7 @@ class DeviceGenerator:
             network_octet: Octet for IP addressing
 
         Returns:
-            Tuple of (devices list, availabilities list)
+            Tuple of (devices list, availabilities list, statuses list)
 
         Config format:
             {
@@ -264,6 +340,7 @@ class DeviceGenerator:
         """
         devices = []
         availabilities = []
+        statuses = []
         device_index = 0
 
         # Generate appliances
@@ -282,7 +359,11 @@ class DeviceGenerator:
                 tags=appliance_config.get("tags", [])
             )
             devices.append(device)
-            availabilities.append(self.generate_device_availability(device))
+            # Generate availability and status with same status value for consistency
+            availability = self.generate_device_availability(device)
+            availabilities.append(availability)
+            # Pass the same status to ensure correlation
+            statuses.append(self.generate_device_status(device, status=availability["status"]))
             device_index += 1
 
         # Generate switches
@@ -303,7 +384,9 @@ class DeviceGenerator:
                     tags=switch_config.get("tags", [])
                 )
                 devices.append(device)
-                availabilities.append(self.generate_device_availability(device))
+                availability = self.generate_device_availability(device)
+                availabilities.append(availability)
+                statuses.append(self.generate_device_status(device, status=availability["status"]))
                 device_index += 1
 
         # Generate wireless APs
@@ -324,7 +407,9 @@ class DeviceGenerator:
                     tags=wireless_config.get("tags", [])
                 )
                 devices.append(device)
-                availabilities.append(self.generate_device_availability(device))
+                availability = self.generate_device_availability(device)
+                availabilities.append(availability)
+                statuses.append(self.generate_device_status(device, status=availability["status"]))
                 device_index += 1
 
         # Generate cellular gateways
@@ -343,7 +428,9 @@ class DeviceGenerator:
                 tags=cellular_config.get("tags", [])
             )
             devices.append(device)
-            availabilities.append(self.generate_device_availability(device))
+            availability = self.generate_device_availability(device)
+            availabilities.append(availability)
+            statuses.append(self.generate_device_status(device, status=availability["status"]))
             device_index += 1
 
-        return devices, availabilities
+        return devices, availabilities, statuses
