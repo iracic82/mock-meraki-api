@@ -72,9 +72,19 @@ DEVICE_MODELS = {
     "camera": {
         "prefix": "Q2",
         "models": {
-            "MV12W": {"firmware": ["MV 4.18"], "resolution": "1080p"},
-            "MV22": {"firmware": ["MV 4.18"], "resolution": "1080p"},
-            "MV72": {"firmware": ["MV 4.18"], "resolution": "4K"},
+            # New generation cameras (requested by Infoblox)
+            "MV13": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "1080p", "type": "Indoor Mini Dome"},
+            "MV13M": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "1080p", "type": "Indoor Mini Dome"},
+            "MV23": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "1080p", "type": "Indoor Varifocal"},
+            "MV23X": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "1080p", "type": "Indoor Varifocal"},
+            "MV33": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "4K", "type": "Indoor Varifocal"},
+            "MV33M": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "4K", "type": "Indoor Varifocal"},
+            "MV63": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "4K", "type": "Outdoor Varifocal"},
+            "MV63X": {"firmware": ["MV 5.4", "MV 5.3"], "resolution": "4K", "type": "Outdoor Varifocal"},
+            # Legacy cameras
+            "MV12W": {"firmware": ["MV 4.18"], "resolution": "1080p", "type": "Indoor Mini Dome"},
+            "MV22": {"firmware": ["MV 4.18"], "resolution": "1080p", "type": "Indoor Varifocal"},
+            "MV72": {"firmware": ["MV 4.18"], "resolution": "4K", "type": "Outdoor"},
         }
     }
 }
@@ -104,6 +114,25 @@ US_LOCATIONS = [
 ]
 
 
+# Street names for realistic addresses
+STREET_NAMES = [
+    "Main Street", "Oak Avenue", "Park Boulevard", "Market Street", "Broadway",
+    "First Avenue", "Second Street", "Third Avenue", "Fourth Street", "Fifth Avenue",
+    "Elm Street", "Pine Avenue", "Cedar Boulevard", "Maple Drive", "Washington Street",
+    "Lincoln Avenue", "Jefferson Boulevard", "Madison Street", "Adams Avenue", "Monroe Drive",
+    "Industrial Way", "Commerce Drive", "Technology Parkway", "Innovation Boulevard",
+    "Corporate Drive", "Business Park Lane", "Enterprise Avenue", "Gateway Boulevard",
+]
+
+# State name mappings
+STATE_NAMES = {
+    "CA": "california", "NY": "new york", "IL": "illinois", "TX": "texas",
+    "WA": "washington", "CO": "colorado", "MA": "massachusetts", "GA": "georgia",
+    "FL": "florida", "AZ": "arizona", "OR": "oregon", "MN": "minnesota",
+    "MI": "michigan", "PA": "pennsylvania", "NC": "north carolina", "UT": "utah",
+}
+
+
 class DeviceGenerator:
     """Generator for realistic Meraki device data."""
 
@@ -123,10 +152,10 @@ class DeviceGenerator:
         return f"{prefix}{part1}-{part2}-{part3}"
 
     def _generate_mac(self) -> str:
-        """Generate a Meraki MAC address with proper OUI."""
-        # Format: 00:18:0A:XX:XX:XX
+        """Generate a Meraki MAC address with proper OUI (lowercase like real API)."""
+        # Format: 00:18:0a:xx:xx:xx (lowercase to match real Meraki API)
         suffix = ':'.join(f'{random.randint(0, 255):02x}' for _ in range(3))
-        return f"{MERAKI_OUI}:{suffix}"
+        return f"{MERAKI_OUI.lower()}:{suffix}"
 
     def _generate_lan_ip(self, network_octet: int, device_index: int) -> str:
         """Generate a LAN IP address."""
@@ -137,6 +166,63 @@ class DeviceGenerator:
     def _generate_wan_ip(self) -> str:
         """Generate a realistic public WAN IP."""
         return f"{random.randint(50, 200)}.{random.randint(1, 254)}.{random.randint(1, 254)}.{random.randint(1, 254)}"
+
+    def _convert_firmware_format(self, product_type: str, firmware_display: str) -> str:
+        """
+        Convert firmware from display format to API format.
+
+        Real Meraki API uses format like:
+        - "wired-19-2-4" for appliances (MX)
+        - "wireless-30-7-1" for wireless (MR)
+        - "switch-15-21-1" for switches (MS)
+        - "camera-5-3" for cameras (MV)
+        - "cellularGateway-1-24-2" for cellular (MG)
+        - "sensor-1-0-3" for sensors (MT)
+
+        Args:
+            product_type: Device product type
+            firmware_display: Display format like "MX 18.107"
+
+        Returns:
+            API format like "wired-18-107"
+        """
+        # Map product type to firmware prefix
+        prefix_map = {
+            "appliance": "wired",
+            "wireless": "wireless",
+            "switch": "switch",
+            "camera": "camera",
+            "cellularGateway": "cellularGateway",
+            "sensor": "sensor",
+        }
+
+        prefix = prefix_map.get(product_type, "unknown")
+
+        # Extract version from display format (e.g., "MX 18.107" -> "18.107")
+        parts = firmware_display.split()
+        if len(parts) >= 2:
+            version = parts[1]  # "18.107" or "30.5"
+        else:
+            version = firmware_display
+
+        # Convert dots to dashes (e.g., "18.107" -> "18-107")
+        version_dashed = version.replace(".", "-")
+
+        return f"{prefix}-{version_dashed}"
+
+    def _generate_address(self, location: dict) -> str:
+        """
+        Generate a realistic street address like real Meraki API.
+
+        Format: "2403 walsh avenue, santa clara, california"
+        """
+        street_num = random.randint(100, 9999)
+        street_name = random.choice(STREET_NAMES).lower()
+        city = location.get('city', 'Unknown').lower()
+        state_abbr = location.get('state', 'CA')
+        state_name = STATE_NAMES.get(state_abbr, state_abbr.lower())
+
+        return f"{street_num} {street_name}, {city}, {state_name}"
 
     def generate_device(
         self,
@@ -169,7 +255,10 @@ class DeviceGenerator:
         """
         model_info = DEVICE_MODELS.get(product_type, {}).get("models", {}).get(model, {})
         prefix = DEVICE_MODELS.get(product_type, {}).get("prefix", "Q2")
-        firmware = random.choice(model_info.get("firmware", ["unknown"]))
+        firmware_display = random.choice(model_info.get("firmware", ["unknown"]))
+
+        # Convert firmware to real Meraki API format (e.g., "MX 18.107" -> "wired-18-107")
+        firmware_api = self._convert_firmware_format(product_type, firmware_display)
 
         serial = self._generate_serial(prefix)
         mac = self._generate_mac()
@@ -183,16 +272,18 @@ class DeviceGenerator:
             "organizationId": organization_id,
             "model": model,
             "productType": product_type,
-            "firmware": firmware,
+            "firmware": firmware_api,
             "lanIp": lan_ip,
             "tags": tags or [],
             "lat": location.get("lat", 37.7749) + random.uniform(-0.01, 0.01),
             "lng": location.get("lng", -122.4194) + random.uniform(-0.01, 0.01),
-            "address": f"{random.randint(100, 9999)} {location.get('city', 'Unknown')} St",
+            "address": self._generate_address(location),
             "notes": None,  # Real API uses null, not empty string
             "url": f"https://mock.meraki.com/devices/{serial}/manage",
             "configurationUpdatedAt": (datetime.utcnow() - timedelta(hours=random.randint(1, 72))).isoformat() + "Z",
-            "details": [],  # Additional device properties (name/value pairs)
+            "details": [
+                {"name": "Running software version", "value": firmware_display}
+            ],
         }
 
         # Add WAN IP for appliances
@@ -432,5 +523,51 @@ class DeviceGenerator:
             availabilities.append(availability)
             statuses.append(self.generate_device_status(device, status=availability["status"]))
             device_index += 1
+
+        # Generate cameras (MV series)
+        for camera_config in config.get("cameras", []):
+            model = camera_config.get("model", "MV33")
+            count = camera_config.get("count", 1)
+            name_prefix = camera_config.get("name_prefix", "CAM")
+            for i in range(count):
+                device = self.generate_device(
+                    network_id=network_id,
+                    organization_id=organization_id,
+                    product_type="camera",
+                    model=model,
+                    name=f"{name_prefix}-{i + 1:02d}",
+                    location=location,
+                    network_octet=network_octet,
+                    device_index=device_index,
+                    tags=camera_config.get("tags", [])
+                )
+                devices.append(device)
+                availability = self.generate_device_availability(device)
+                availabilities.append(availability)
+                statuses.append(self.generate_device_status(device, status=availability["status"]))
+                device_index += 1
+
+        # Generate sensors (MT series)
+        for sensor_config in config.get("sensors", []):
+            model = sensor_config.get("model", "MT10")
+            count = sensor_config.get("count", 1)
+            name_prefix = sensor_config.get("name_prefix", "SENSOR")
+            for i in range(count):
+                device = self.generate_device(
+                    network_id=network_id,
+                    organization_id=organization_id,
+                    product_type="sensor",
+                    model=model,
+                    name=f"{name_prefix}-{i + 1:02d}",
+                    location=location,
+                    network_octet=network_octet,
+                    device_index=device_index,
+                    tags=sensor_config.get("tags", [])
+                )
+                devices.append(device)
+                availability = self.generate_device_availability(device)
+                availabilities.append(availability)
+                statuses.append(self.generate_device_status(device, status=availability["status"]))
+                device_index += 1
 
         return devices, availabilities, statuses

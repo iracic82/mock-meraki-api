@@ -62,7 +62,7 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         network_id=hq_network_id,
         organization_id=org_id,
         name="HQ-Campus",
-        product_types=["appliance", "switch", "wireless"],
+        product_types=["appliance", "switch", "wireless", "camera", "sensor"],
         timezone=hq_location["tz"],
         tags=["hub", "headquarters", "campus"],
         notes="Corporate headquarters - Hub site for all VPN connections"
@@ -79,6 +79,15 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         ],
         "wireless": [
             {"model": "MR57", "count": 20, "name_prefix": "HQ-AP", "tags": ["wireless-ap", "indoor", "wifi6e"]},
+        ],
+        "cameras": [
+            {"model": "MV33", "count": 8, "name_prefix": "HQ-CAM-INDOOR", "tags": ["camera", "indoor", "4k"]},
+            {"model": "MV63", "count": 4, "name_prefix": "HQ-CAM-OUTDOOR", "tags": ["camera", "outdoor", "4k"]},
+            {"model": "MV13", "count": 6, "name_prefix": "HQ-CAM-MINI", "tags": ["camera", "indoor", "mini-dome"]},
+        ],
+        "sensors": [
+            {"model": "MT14", "count": 10, "name_prefix": "HQ-DOOR", "tags": ["sensor", "door"]},
+            {"model": "MT10", "count": 8, "name_prefix": "HQ-TEMP", "tags": ["sensor", "temperature"]},
         ],
     }
 
@@ -137,19 +146,19 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
     # Branch Networks (Spokes)
     # ====================================
     branch_configs = [
-        # Large branches (50 clients each)
-        {"name": "Branch-NYC", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 8}], "clients": 60},
-        {"name": "Branch-Chicago", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 6}], "clients": 55},
-        {"name": "Branch-LA", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 6}], "clients": 50},
-        {"name": "Branch-Seattle", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 5}], "clients": 45},
-        {"name": "Branch-Austin", "model": "MX75", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 5}], "clients": 40},
+        # Large branches (50 clients each) - with cameras
+        {"name": "Branch-NYC", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 8}], "cameras": [{"model": "MV33", "count": 4}, {"model": "MV63", "count": 2}], "clients": 60},
+        {"name": "Branch-Chicago", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 6}], "cameras": [{"model": "MV23", "count": 3}, {"model": "MV63X", "count": 2}], "clients": 55},
+        {"name": "Branch-LA", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 6}], "cameras": [{"model": "MV13", "count": 4}], "clients": 50},
+        {"name": "Branch-Seattle", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 5}], "cameras": [{"model": "MV23X", "count": 3}], "clients": 45},
+        {"name": "Branch-Austin", "model": "MX75", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 5}], "cameras": [{"model": "MV13M", "count": 2}], "clients": 40},
 
-        # Medium branches (30 clients each)
-        {"name": "Branch-Denver", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "clients": 35},
-        {"name": "Branch-Boston", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "clients": 35},
+        # Medium branches (30 clients each) - some with cameras
+        {"name": "Branch-Denver", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "cameras": [{"model": "MV13", "count": 2}], "clients": 35},
+        {"name": "Branch-Boston", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "cameras": [{"model": "MV33M", "count": 2}], "clients": 35},
         {"name": "Branch-Atlanta", "model": "MX68", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30},
         {"name": "Branch-Miami", "model": "MX68", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30},
-        {"name": "Branch-Dallas", "model": "MX68W", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30},
+        {"name": "Branch-Dallas", "model": "MX68W", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "sensors": [{"model": "MT10", "count": 2}], "clients": 30},
 
         # Small branches (15-20 clients each)
         {"name": "Branch-Phoenix", "model": "MX68W", "switches": [], "aps": [{"model": "MR33", "count": 2}], "clients": 20},
@@ -158,12 +167,12 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         {"name": "Branch-Detroit", "model": "MX67", "switches": [], "aps": [{"model": "MR33", "count": 2}], "clients": 18},
         {"name": "Branch-Philly", "model": "MX67", "switches": [], "aps": [{"model": "MR33", "count": 2}], "clients": 18},
 
-        # Remote/Cellular sites
+        # Remote/Cellular sites - warehouse has cameras
         {"name": "Remote-SanDiego", "model": "MX67C", "cellular": [{"model": "MG41"}], "switches": [], "aps": [{"model": "MR30H", "count": 1}], "clients": 10},
         {"name": "Remote-Houston", "model": "MX67C", "cellular": [{"model": "MG41"}], "switches": [], "aps": [{"model": "MR30H", "count": 1}], "clients": 10},
         {"name": "Remote-Charlotte", "model": "MX67C", "cellular": [{"model": "MG41"}], "switches": [], "aps": [{"model": "MR30H", "count": 1}], "clients": 8},
         {"name": "Remote-SaltLake", "model": "MX67C", "cellular": [{"model": "MG41"}], "switches": [], "aps": [], "clients": 5},
-        {"name": "Remote-Warehouse", "model": "MX67C", "cellular": [{"model": "MG21"}], "switches": [], "aps": [], "clients": 3},
+        {"name": "Remote-Warehouse", "model": "MX67C", "cellular": [{"model": "MG21"}], "switches": [], "aps": [], "cameras": [{"model": "MV72", "count": 6}, {"model": "MV63", "count": 4}], "sensors": [{"model": "MT14", "count": 8}, {"model": "MT12", "count": 4}], "clients": 3},
     ]
 
     for i, branch_config in enumerate(branch_configs):
@@ -188,6 +197,8 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
             "switches": branch_config.get("switches", []),
             "wireless": branch_config.get("aps", []),
             "cellular": branch_config.get("cellular", []),
+            "cameras": branch_config.get("cameras", []),
+            "sensors": branch_config.get("sensors", []),
         }
 
         # Add name prefixes and infrastructure tags
@@ -200,6 +211,12 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
         for mg in dev_config["cellular"]:
             mg["name"] = f"{branch_config['name']}-MG"
             mg["tags"] = ["cellular-gateway", "wan-backup"]
+        for cam in dev_config["cameras"]:
+            cam["name_prefix"] = f"{branch_config['name']}-CAM"
+            cam["tags"] = ["camera", "security"]
+        for sensor in dev_config["sensors"]:
+            sensor["name_prefix"] = f"{branch_config['name']}-SENSOR"
+            sensor["tags"] = ["sensor", "iot"]
 
         # Generate devices
         branch_devices, branch_availabilities, branch_statuses = device_gen.generate_devices_for_network(
@@ -289,4 +306,8 @@ def _get_product_types(config: dict) -> list[str]:
         types.append("wireless")
     if config.get("cellular"):
         types.append("cellularGateway")
+    if config.get("cameras"):
+        types.append("camera")
+    if config.get("sensors"):
+        types.append("sensor")
     return types

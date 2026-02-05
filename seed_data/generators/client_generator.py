@@ -69,9 +69,9 @@ class ClientGenerator:
             self._device_types.extend([d] * d["weight"])
 
     def _generate_mac(self, oui: str) -> str:
-        """Generate a MAC address with the given OUI."""
-        suffix = ':'.join(f'{random.randint(0, 255):02x}'.upper() for _ in range(3))
-        return f"{oui}:{suffix}"
+        """Generate a MAC address with the given OUI (lowercase like real Meraki API)."""
+        suffix = ':'.join(f'{random.randint(0, 255):02x}' for _ in range(3))
+        return f"{oui.lower()}:{suffix}"
 
     def _generate_ip_from_subnet(self, subnet: str, client_index: int) -> str:
         """Generate a client IP address from the VLAN's actual subnet.
@@ -155,11 +155,104 @@ class ClientGenerator:
         suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
         return f"{prefix}-{suffix}", device_type
 
+    def _is_iot_device(self, hostname: str, device_type_prediction: str) -> bool:
+        """Determine if a device is an IoT device based on hostname and type prediction.
+
+        IoT devices: printers, scanners, sensors, cameras, VoIP phones
+        Non-IoT: laptops, desktops, phones, tablets (user devices)
+        """
+        hostname_upper = hostname.upper()
+        type_lower = device_type_prediction.lower() if device_type_prediction else ""
+
+        # IoT device patterns
+        iot_patterns = [
+            "PRINTER", "SCANNER", "SENSOR", "CAMERA", "VOIP",
+            "NUC", "DEVICE-"  # Generic devices are often IoT
+        ]
+        iot_type_patterns = [
+            "printer", "scanner", "sensor", "camera", "ip phone",
+            "iot", "intel nuc"
+        ]
+
+        # Check hostname
+        for pattern in iot_patterns:
+            if pattern in hostname_upper:
+                return True
+
+        # Check device type prediction
+        for pattern in iot_type_patterns:
+            if pattern in type_lower:
+                return True
+
+        return False
+
+    def _get_ssid_for_device(self, hostname: str, device_type_prediction: str, named_vlan: str) -> str:
+        """Determine appropriate SSID based on device type.
+
+        - IoT devices (printers, sensors, cameras) → "IoT"
+        - User devices on Guest VLAN → "Guest"
+        - User devices on Corporate/other VLANs → "Corporate" (90%) or "Guest" (10%)
+        """
+        if self._is_iot_device(hostname, device_type_prediction):
+            return "IoT"
+
+        # User devices - check VLAN for Guest
+        if named_vlan and "guest" in named_vlan.lower():
+            return "Guest"
+
+        # Corporate users - mostly Corporate SSID, some Guest
+        return "Corporate" if random.random() < 0.9 else "Guest"
+
     def _generate_user(self) -> str:
         """Generate a realistic username."""
         first_names = ["john", "jane", "mike", "sarah", "david", "lisa", "tom", "anna", "chris", "kate"]
         last_names = ["smith", "jones", "wilson", "brown", "davis", "miller", "moore", "taylor", "anderson", "thomas"]
         return f"{random.choice(first_names)}.{random.choice(last_names)}"
+
+    def _get_vlan_name(self, vlan_id) -> str:
+        """Get descriptive VLAN name based on ID."""
+        # Ensure vlan_id is an integer
+        try:
+            vid = int(vlan_id)
+        except (ValueError, TypeError):
+            return f"VLAN {vlan_id}"
+
+        # Map common VLAN IDs to descriptive names
+        vlan_names = {
+            1: "Default",
+            10: "Corporate",
+            11: "Corporate",
+            12: "Corporate",
+            13: "Corporate",
+            20: "Corporate",
+            21: "Corporate",
+            30: "Guest",
+            31: "Guest",
+            40: "Voice",
+            41: "Voice",
+            50: "Servers",
+            60: "IoT",
+            70: "Management",
+            80: "Wireless",
+            90: "Security",
+            99: "Management",
+            100: "Data",
+        }
+        # For unmapped VLANs, generate descriptive name based on range
+        if vid in vlan_names:
+            return vlan_names[vid]
+        elif vid < 20:
+            return "Corporate"
+        elif vid < 40:
+            return "Guest"
+        elif vid < 60:
+            return "Voice"
+        elif vid < 80:
+            return "IoT"
+        elif vid < 100:
+            return "Management"
+        else:
+            return "Data"
 
     def generate_client(
         self,
@@ -231,23 +324,24 @@ class ClientGenerator:
             "deviceTypePrediction": device_type_prediction,
             "user": self._generate_user() if random.random() > 0.3 else None,
             "vlan": str(vlan_id),
-            "namedVlan": f"VLAN_{vlan_id}",
-            "switchport": f"Port {random.randint(1, 48)}" if random.random() > 0.3 else None,
+            "namedVlan": self._get_vlan_name(vlan_id),
+            "switchport": f"GigabitEthernet1/0/{random.randint(1, 48)}" if random.random() > 0.4 else None,
             "ssid": None,  # Will be set for wireless clients
             "status": "Online" if random.random() > 0.1 else "Offline",
-            "notes": None,
+            "notes": random.choice([None, None, None, "Visitor device", "Temp access", "Executive laptop", "Conference room"]),
             "smInstalled": random.random() > 0.8,
             "recentDeviceSerial": device_serial,
             "recentDeviceName": None,
             "recentDeviceMac": None,
             "recentDeviceConnection": "Wired" if random.random() > 0.4 else "Wireless",
             "wirelessCapabilities": None,
-            "adaptivePolicyGroup": None,
-            "groupPolicy8021x": None,
-            "pskGroup": None,
+            "adaptivePolicyGroup": random.choice([None, None, "1: Employee", "2: Infrastructure", "3: Guest", "4: IoT Devices"]),
+            "groupPolicy8021x": random.choice([None, None, None, "Employee_Access", "Guest_Access", "Contractor_Access", "Student_Access"]),
+            "pskGroup": random.choice([None, None, None, "Group 1", "Group 2", "IoT Group"]),
             "usage": {
                 "sent": sent,
-                "recv": recv
+                "recv": recv,
+                "total": sent + recv
             }
         }
 
@@ -367,8 +461,8 @@ class ClientGenerator:
             "switchport": base_client["switchport"],
             "adaptivePolicyGroup": base_client["adaptivePolicyGroup"],
             "usage": {
-                "sent": base_client["usage"]["sent"] / 1000,  # Convert to KB for device endpoint
-                "recv": base_client["usage"]["recv"] / 1000
+                "sent": int(base_client["usage"]["sent"] / 1000),  # Convert to KB (integer) for device endpoint
+                "recv": int(base_client["usage"]["recv"] / 1000)
             }
         }
 
@@ -396,25 +490,31 @@ class ClientGenerator:
         network_clients = []
         device_clients = {d["serial"]: [] for d in devices if d["productType"] in ["switch", "wireless"]}
 
-        # Get device serials that can have clients
-        connectable_devices = [
-            d["serial"] for d in devices
-            if d["productType"] in ["switch", "wireless"]
-        ]
+        # Build device lookup map for getting name and MAC
+        device_lookup = {d["serial"]: d for d in devices}
+
+        # Separate devices by type - wired clients connect to switches, wireless to APs
+        switches = [d for d in devices if d["productType"] == "switch"]
+        access_points = [d for d in devices if d["productType"] == "wireless"]
+
+        # Determine connection distribution based on available devices
+        # If only APs exist, all clients are wireless
+        # If only switches exist, all clients are wired
+        # If both exist, distribute ~60% wired, ~40% wireless
+        has_switches = len(switches) > 0
+        has_aps = len(access_points) > 0
 
         for i in range(count):
             # Pick a VLAN (weighted towards corporate/data VLANs)
             vlan = random.choice(vlans) if vlans else {"id": 1, "name": "Default", "subnet": "192.168.1.0/24"}
             vlan_id = vlan.get("id", 1)
+            vlan_name = vlan.get("name", "Default")  # Get actual VLAN name from topology
             vlan_subnet = vlan.get("subnet")  # Get the actual subnet (e.g., '192.168.100.0/24')
 
             # Generate client ID
             client_id = f"k{random.randint(100000, 999999)}"
 
-            # Pick a device this client is connected to
-            device_serial = random.choice(connectable_devices) if connectable_devices else None
-
-            # Generate network client with correct subnet-based IP
+            # Generate network client first to get hostname/device type
             net_client = self.generate_network_client(
                 client_id=client_id,
                 network_id=network_id,
@@ -422,7 +522,85 @@ class ClientGenerator:
                 client_index=i,
                 vlan_subnet=vlan_subnet
             )
+            # Override namedVlan with actual VLAN name from topology
+            net_client["namedVlan"] = vlan_name
+
+            # Determine connection type based on DEVICE TYPE (realistic assignment)
+            hostname = net_client.get("description", "").upper()
+            device_prediction = net_client.get("deviceTypePrediction", "").lower()
+
+            # Always wireless: phones, tablets
+            always_wireless = any(p in hostname for p in ["IPHONE", "IPAD", "GALAXY", "PIXEL", "SAMSUNG-TAB", "TABLET"])
+            always_wireless = always_wireless or any(p in device_prediction for p in ["iphone", "ipad", "galaxy", "pixel", "tablet", "android"])
+
+            # Always wired: desktops, printers, scanners, VoIP, sensors, cameras, NUCs
+            always_wired = any(p in hostname for p in ["DESKTOP", "PRINTER", "SCANNER", "VOIP", "SENSOR", "CAMERA", "NUC"])
+            always_wired = always_wired or any(p in device_prediction for p in ["desktop", "printer", "scanner", "ip phone", "voip", "sensor", "camera", "nuc"])
+
+            # Determine is_wired based on device type
+            if always_wireless:
+                is_wired = False
+            elif always_wired:
+                is_wired = True
+            else:
+                # Laptops, Chromebooks, MacBooks, ThinkPads, Surfaces - mix (40% wired, 60% wireless)
+                is_wired = random.random() < 0.4
+
+            # Adjust based on available infrastructure
+            if is_wired and not has_switches:
+                is_wired = False  # Force wireless if no switches
+            if not is_wired and not has_aps:
+                is_wired = True  # Force wired if no APs
+
+            # Pick appropriate device based on connection type
+            if is_wired and has_switches:
+                device = random.choice(switches)
+                connection_type = "Wired"
+            elif not is_wired and has_aps:
+                device = random.choice(access_points)
+                connection_type = "Wireless"
+            elif has_switches:
+                device = random.choice(switches)
+                connection_type = "Wired"
+            elif has_aps:
+                device = random.choice(access_points)
+                connection_type = "Wireless"
+            else:
+                device = None
+                connection_type = "Wired" if is_wired else "Wireless"
+
+            device_serial = device["serial"] if device else None
+            device_name = device.get("name") if device else None
+            device_mac = device.get("mac") if device else None
+
+            # Set connection info on the already-generated client
             net_client["recentDeviceSerial"] = device_serial
+            net_client["recentDeviceName"] = device_name
+            net_client["recentDeviceMac"] = device_mac
+            net_client["recentDeviceConnection"] = connection_type
+
+            # Use actual VLAN name for SSID determination
+            client_named_vlan = vlan_name
+
+            # Set connection-specific fields
+            if connection_type == "Wired":
+                # Wired clients have switchport, no SSID (matches real Meraki API)
+                net_client["switchport"] = f"GigabitEthernet1/0/{random.randint(1, 48)}"
+                net_client["ssid"] = None
+                net_client["wirelessCapabilities"] = None
+            else:
+                # Wireless clients have SSID based on device type, no switchport
+                net_client["switchport"] = None
+                net_client["ssid"] = self._get_ssid_for_device(hostname, device_prediction, client_named_vlan)
+                net_client["wirelessCapabilities"] = random.choice([
+                    "802.11ac - 2.4 GHz",
+                    "802.11ac - 5 GHz",
+                    "802.11ax - 2.4 GHz",
+                    "802.11ax - 5 GHz",
+                    "802.11ax - 6 GHz",
+                    "802.11n - 2.4 GHz"
+                ])
+
             network_clients.append(net_client)
 
             # Generate device client (simpler format per Meraki API)
@@ -435,6 +613,11 @@ class ClientGenerator:
                     device_serial=device_serial,
                     vlan_subnet=vlan_subnet
                 )
+                # Ensure switchport consistency for device client too
+                if connection_type == "Wired":
+                    dev_client["switchport"] = net_client["switchport"]
+                else:
+                    dev_client["switchport"] = None
                 device_clients[device_serial].append(dev_client)
 
         return network_clients, device_clients

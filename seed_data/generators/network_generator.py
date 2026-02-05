@@ -110,7 +110,12 @@ class NetworkGenerator:
                 }
             },
             "management": {
-                "details": []
+                "details": [
+                    {
+                        "name": "customer number",
+                        "value": f"{random.randint(10000000, 99999999):08d}"
+                    }
+                ]
             }
         }
 
