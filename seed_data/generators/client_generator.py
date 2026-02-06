@@ -14,21 +14,22 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 # Client manufacturers with realistic distributions and VERIFIED OUI prefixes
-# OUIs verified against IEEE/Wireshark OUI database
+# OUIs verified against IEEE MAC Address Registry (maclookup.app) - Feb 2026
+# IMPORTANT: OUIs must be for CONSUMER devices, not enterprise/networking equipment
 CLIENT_MANUFACTURERS = [
-    {"name": "Apple", "oui": "3C:E0:72", "weight": 25, "os": ["iOS 17", "iOS 16", "macOS Sonoma", "macOS Ventura"]},  # Real Apple OUI
-    {"name": "Samsung", "oui": "84:25:DB", "weight": 15, "os": ["Android 14", "Android 13", "Android 12"]},  # Real Samsung OUI
-    {"name": "Dell", "oui": "18:A9:05", "weight": 12, "os": ["Windows 11", "Windows 10"]},  # Real Dell OUI
-    {"name": "HP", "oui": "3C:D9:2B", "weight": 10, "os": ["Windows 11", "Windows 10"]},  # Real HP OUI
-    {"name": "Lenovo", "oui": "28:D2:44", "weight": 10, "os": ["Windows 11", "Windows 10", "Chrome OS"]},  # Real Lenovo OUI
-    {"name": "Microsoft", "oui": "28:18:78", "weight": 5, "os": ["Windows 11", "Windows 10"]},  # Real Microsoft OUI
-    {"name": "Intel", "oui": "3C:97:0E", "weight": 5, "os": ["Windows 11", "Windows 10", "Linux"]},  # Real Intel OUI
-    {"name": "Google", "oui": "F4:F5:D8", "weight": 5, "os": ["Android 14", "Chrome OS"]},  # Real Google OUI
-    {"name": "Cisco", "oui": "00:1B:0D", "weight": 3, "os": ["IOS-XE", "AireOS"]},  # Real Cisco OUI
-    {"name": "Zebra", "oui": "00:A0:F8", "weight": 3, "os": ["Android 11", "Android 10"]},  # Real Zebra OUI
-    {"name": "Honeywell", "oui": "00:40:84", "weight": 2, "os": ["Android 10"]},  # Real Honeywell OUI
-    {"name": "Epson", "oui": "00:26:AB", "weight": 2, "os": ["Embedded"]},  # Real Epson OUI
-    {"name": "Canon", "oui": "00:1E:8F", "weight": 2, "os": ["Embedded"]},  # Real Canon OUI
+    {"name": "Apple", "oui": "3C:E0:72", "weight": 25, "os": ["iOS 17", "iOS 16", "macOS Sonoma", "macOS Ventura"]},  # Apple Inc
+    {"name": "Samsung", "oui": "84:25:DB", "weight": 15, "os": ["Android 14", "Android 13", "Android 12"]},  # Samsung Electronics
+    {"name": "Dell", "oui": "F8:B1:56", "weight": 12, "os": ["Windows 11", "Windows 10"]},  # Dell Inc (consumer laptops)
+    {"name": "HP", "oui": "10:B6:76", "weight": 10, "os": ["Windows 11", "Windows 10"]},  # HP Inc (consumer, NOT HPE enterprise)
+    {"name": "Lenovo", "oui": "28:D2:44", "weight": 10, "os": ["Windows 11", "Windows 10", "Chrome OS"]},  # LCFC/Lenovo
+    {"name": "Microsoft", "oui": "28:18:78", "weight": 5, "os": ["Windows 11", "Windows 10"]},  # Microsoft Corporation (Surface)
+    {"name": "Intel", "oui": "A4:34:D9", "weight": 5, "os": ["Windows 11", "Windows 10", "Linux"]},  # Intel Corporate (WiFi adapters)
+    {"name": "Google", "oui": "F4:F5:D8", "weight": 5, "os": ["Android 14", "Chrome OS"]},  # Google Inc (Pixel, Chromebook)
+    {"name": "Cisco", "oui": "00:1B:0D", "weight": 3, "os": ["Cisco IP Phone"]},  # Cisco Systems (VoIP phones only)
+    {"name": "Zebra", "oui": "00:A0:F8", "weight": 3, "os": ["Android 11", "Android 10"]},  # Zebra Technologies (scanners)
+    {"name": "Honeywell", "oui": "00:40:84", "weight": 2, "os": ["Android 10"]},  # Honeywell (scanners)
+    {"name": "Epson", "oui": "00:26:AB", "weight": 2, "os": ["Embedded"]},  # Seiko Epson (printers)
+    {"name": "Canon", "oui": "00:1E:8F", "weight": 2, "os": ["Embedded"]},  # Canon Inc (printers)
     {"name": "IoT Device", "oui": "B8:27:EB", "weight": 1, "os": ["Linux", "Embedded"]},  # Raspberry Pi Foundation
 ]
 
@@ -123,16 +124,13 @@ class ClientGenerator:
                 ("CHROMEBOOK", lambda o: f"Chromebook, {o}"),
             ],
             "Cisco": [
-                ("VOIP", lambda o: "Cisco IP Phone"),
-                ("DEVICE", lambda o: "Cisco Device"),
+                ("VOIP", lambda o: "Cisco IP Phone"),  # VoIP phones only, not generic devices
             ],
             "Zebra": [
-                ("SCANNER", lambda o: "Zebra Scanner"),
-                ("DEVICE", lambda o: f"Zebra Device, {o}"),
+                ("SCANNER", lambda o: "Zebra Scanner"),  # Handheld scanners only
             ],
             "Honeywell": [
-                ("SCANNER", lambda o: "Honeywell Scanner"),
-                ("DEVICE", lambda o: f"Honeywell Device, {o}"),
+                ("SCANNER", lambda o: "Honeywell Scanner"),  # Handheld scanners only
             ],
             "Epson": [
                 ("PRINTER", lambda o: "Epson Printer"),
