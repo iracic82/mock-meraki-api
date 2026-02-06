@@ -16,21 +16,24 @@ from typing import Optional
 # Client manufacturers with realistic distributions and VERIFIED OUI prefixes
 # OUIs verified against IEEE MAC Address Registry (maclookup.app) - Feb 2026
 # IMPORTANT: OUIs must be for CONSUMER devices, not enterprise/networking equipment
+# IMPORTANT: Apple split into Mobile (iOS) and Mac (macOS) to prevent MacBooks with iOS
 CLIENT_MANUFACTURERS = [
-    {"name": "Apple", "oui": "3C:E0:72", "weight": 25, "os": ["iOS 17", "iOS 16", "macOS Sonoma", "macOS Ventura"]},  # Apple Inc
+    {"name": "Apple Mobile", "oui": "3C:E0:72", "weight": 15, "os": ["iOS 17", "iOS 16", "iOS 15"]},  # Apple Inc - iPhone/iPad only
+    {"name": "Apple Mac", "oui": "A4:83:E7", "weight": 10, "os": ["macOS Sonoma", "macOS Ventura", "macOS Monterey"]},  # Apple Inc - MacBook only
     {"name": "Samsung", "oui": "84:25:DB", "weight": 15, "os": ["Android 14", "Android 13", "Android 12"]},  # Samsung Electronics
     {"name": "Dell", "oui": "F8:B1:56", "weight": 12, "os": ["Windows 11", "Windows 10"]},  # Dell Inc (consumer laptops)
     {"name": "HP", "oui": "10:B6:76", "weight": 10, "os": ["Windows 11", "Windows 10"]},  # HP Inc (consumer, NOT HPE enterprise)
     {"name": "Lenovo", "oui": "28:D2:44", "weight": 10, "os": ["Windows 11", "Windows 10", "Chrome OS"]},  # LCFC/Lenovo
     {"name": "Microsoft", "oui": "28:18:78", "weight": 5, "os": ["Windows 11", "Windows 10"]},  # Microsoft Corporation (Surface)
-    {"name": "Intel", "oui": "A4:34:D9", "weight": 5, "os": ["Windows 11", "Windows 10", "Linux"]},  # Intel Corporate (WiFi adapters)
+    {"name": "Intel", "oui": "A4:34:D9", "weight": 3, "os": ["Windows 11", "Windows 10", "Linux"]},  # Intel Corporate (NUC)
     {"name": "Google", "oui": "F4:F5:D8", "weight": 5, "os": ["Android 14", "Chrome OS"]},  # Google Inc (Pixel, Chromebook)
-    {"name": "Cisco", "oui": "00:1B:0D", "weight": 3, "os": ["Cisco IP Phone"]},  # Cisco Systems (VoIP phones only)
+    {"name": "Cisco", "oui": "00:1B:0D", "weight": 2, "os": ["Cisco IP Phone"]},  # Cisco Systems (VoIP phones only)
     {"name": "Zebra", "oui": "00:A0:F8", "weight": 3, "os": ["Android 11", "Android 10"]},  # Zebra Technologies (scanners)
     {"name": "Honeywell", "oui": "00:40:84", "weight": 2, "os": ["Android 10"]},  # Honeywell (scanners)
     {"name": "Epson", "oui": "00:26:AB", "weight": 2, "os": ["Embedded"]},  # Seiko Epson (printers)
     {"name": "Canon", "oui": "00:1E:8F", "weight": 2, "os": ["Embedded"]},  # Canon Inc (printers)
-    {"name": "IoT Device", "oui": "B8:27:EB", "weight": 1, "os": ["Linux", "Embedded"]},  # Raspberry Pi Foundation
+    {"name": "Axis", "oui": "00:40:8C", "weight": 1, "os": ["Embedded"]},  # Axis Communications (IP cameras)
+    {"name": "Texas Instruments", "oui": "00:17:E5", "weight": 1, "os": ["Embedded"]},  # TI (IoT sensors)
 ]
 
 # Device types with usage patterns
@@ -94,10 +97,13 @@ class ClientGenerator:
         # Map manufacturer to hostname prefixes with Meraki-style device type predictions
         # Meraki returns detailed strings like "iPhone SE, iOS9.3.5"
         prefixes = {
-            "Apple": [
+            "Apple Mobile": [
                 ("IPHONE", lambda o: f"iPhone, {o}"),
-                ("MACBOOK", lambda o: f"MacBook Pro, {o}"),
                 ("IPAD", lambda o: f"iPad, {o}"),
+            ],
+            "Apple Mac": [
+                ("MACBOOK", lambda o: f"MacBook Pro, {o}"),
+                ("IMAC", lambda o: f"iMac, {o}"),
             ],
             "Samsung": [
                 ("GALAXY", lambda o: f"Samsung Galaxy, {o}"),
@@ -138,9 +144,11 @@ class ClientGenerator:
             "Canon": [
                 ("PRINTER", lambda o: "Canon Printer"),
             ],
-            "IoT Device": [
+            "Axis": [
+                ("CAMERA", lambda o: "Axis IP Camera"),
+            ],
+            "Texas Instruments": [
                 ("SENSOR", lambda o: "IoT Sensor"),
-                ("CAMERA", lambda o: "IP Camera"),
             ],
             "Intel": [
                 ("DEVICE", lambda o: f"Intel NUC, {o}"),
