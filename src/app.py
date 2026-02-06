@@ -133,6 +133,11 @@ def _route_request(method: str, path: str, path_params: dict, query_params: dict
         return networks.get_site_to_site_vpn(topology, net_id)
 
     # Device endpoints
+    device_dhcp_subnets_match = re.match(r"/api/v1/devices/([^/]+)/appliance/dhcp/subnets", path)
+    if device_dhcp_subnets_match:
+        serial = path_params.get("serial") or device_dhcp_subnets_match.group(1)
+        return devices.get_device_appliance_dhcp_subnets(topology, serial)
+
     device_clients_match = re.match(r"/api/v1/devices/([^/]+)/clients", path)
     if device_clients_match:
         serial = path_params.get("serial") or device_clients_match.group(1)

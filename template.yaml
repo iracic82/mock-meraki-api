@@ -182,6 +182,12 @@ Resources:
             RestApiId: !Ref MerakiMockApi
             Path: /api/v1/devices/{serial}/clients
             Method: GET
+        GetDeviceApplianceDhcpSubnets:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MerakiMockApi
+            Path: /api/v1/devices/{serial}/appliance/dhcp/subnets
+            Method: GET
 
         # Admin Endpoints
         GetTopologies:
