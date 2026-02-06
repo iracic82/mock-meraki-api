@@ -88,10 +88,20 @@ def validate_topology(name: str, module_path: str, func_name: str) -> list[str]:
                     errors.append(f'{name}: Client missing field "{field}"')
 
             # Check deviceTypePrediction format (should contain comma for Meraki format)
+            # Exception: Some embedded devices don't have OS info after the comma
             dtp = client.get('deviceTypePrediction', '')
-            if dtp and ',' not in dtp and dtp not in ['Cisco IP Phone', 'HP Printer', 'Canon Printer',
-                                                       'Epson Printer', 'IoT Sensor', 'IP Camera',
-                                                       'Zebra Scanner', 'Honeywell Scanner', 'Cisco Device']:
+            valid_no_comma_types = [
+                'Cisco IP Phone', 'Cisco IP Phone 8845',
+                'HP LaserJet Printer', 'HP OfficeJet MFP',
+                'Canon Printer', 'Epson Printer',
+                'IoT Sensor', 'Environmental Sensor',
+                'Axis IP Camera', 'Axis P3245-V',
+                'Zebra Scanner', 'Zebra TC52',
+                'Honeywell Scanner', 'Honeywell CT60',
+                'GE Patient Monitor', 'GE CARESCAPE Monitor',
+                'Philips IntelliVue', 'Philips Patient Monitor',
+            ]
+            if dtp and ',' not in dtp and dtp not in valid_no_comma_types:
                 print(f'  Warning: deviceTypePrediction "{dtp}" may not be in Meraki format')
 
         if not errors:

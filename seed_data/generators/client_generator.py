@@ -16,25 +16,81 @@ from typing import Optional
 # Client manufacturers with realistic distributions and VERIFIED OUI prefixes
 # OUIs verified against IEEE MAC Address Registry (maclookup.app) - Feb 2026
 # IMPORTANT: OUIs must be for CONSUMER devices, not enterprise/networking equipment
-# IMPORTANT: Apple split into Mobile (iOS) and Mac (macOS) to prevent MacBooks with iOS
+# NOTE: Manufacturer names are CLEAN (no product suffixes) to match real Meraki API
+# Device type is determined by OUI prefix in _generate_hostname_and_type()
 CLIENT_MANUFACTURERS = [
-    {"name": "Apple Mobile", "oui": "3C:E0:72", "weight": 15, "os": ["iOS 17", "iOS 16", "iOS 15"]},  # Apple Inc - iPhone/iPad only
-    {"name": "Apple Mac", "oui": "A4:83:E7", "weight": 10, "os": ["macOS Sonoma", "macOS Ventura", "macOS Monterey"]},  # Apple Inc - MacBook only
-    {"name": "Samsung", "oui": "84:25:DB", "weight": 15, "os": ["Android 14", "Android 13", "Android 12"]},  # Samsung Electronics
+    # User devices - computers and mobile
+    {"name": "Apple", "oui": "3C:E0:72", "weight": 15, "os": ["iOS 17", "iOS 16", "iOS 15"]},  # Apple Inc - iPhone/iPad (mobile OUI)
+    {"name": "Apple", "oui": "A4:83:E7", "weight": 10, "os": ["macOS Sonoma", "macOS Ventura", "macOS Monterey"]},  # Apple Inc - MacBook (mac OUI)
+    {"name": "Samsung", "oui": "84:25:DB", "weight": 12, "os": ["Android 14", "Android 13", "Android 12"]},  # Samsung Electronics - phones/tablets
     {"name": "Dell", "oui": "F8:B1:56", "weight": 12, "os": ["Windows 11", "Windows 10"]},  # Dell Inc (consumer laptops)
-    {"name": "HP", "oui": "10:B6:76", "weight": 10, "os": ["Windows 11", "Windows 10"]},  # HP Inc (consumer, NOT HPE enterprise)
+    {"name": "HP", "oui": "10:B6:76", "weight": 10, "os": ["Windows 11", "Windows 10"]},  # HP Inc (consumer laptops, NOT HPE enterprise)
     {"name": "Lenovo", "oui": "28:D2:44", "weight": 10, "os": ["Windows 11", "Windows 10", "Chrome OS"]},  # LCFC/Lenovo
     {"name": "Microsoft", "oui": "28:18:78", "weight": 5, "os": ["Windows 11", "Windows 10"]},  # Microsoft Corporation (Surface)
     {"name": "Intel", "oui": "A4:34:D9", "weight": 3, "os": ["Windows 11", "Windows 10", "Linux"]},  # Intel Corporate (NUC)
     {"name": "Google", "oui": "F4:F5:D8", "weight": 5, "os": ["Android 14", "Chrome OS"]},  # Google Inc (Pixel, Chromebook)
+
+    # Printers - always wired
+    {"name": "HP", "oui": "C8:B5:AD", "weight": 3, "os": ["Embedded"]},  # HP Inc (printers OUI)
+    {"name": "Epson", "oui": "00:26:AB", "weight": 2, "os": ["Embedded"]},  # Seiko Epson (printers)
+    {"name": "Canon", "oui": "00:1E:8F", "weight": 2, "os": ["Embedded"]},  # Canon Inc (printers)
+
+    # Smart TVs - can be wired or wireless
+    {"name": "Samsung", "oui": "8C:79:F5", "weight": 2, "os": ["Tizen OS"]},  # Samsung Electronics (Smart TVs OUI)
+    {"name": "LG", "oui": "A8:23:FE", "weight": 2, "os": ["webOS"]},  # LG Electronics (Smart TVs)
+
+    # VoIP and scanners
     {"name": "Cisco", "oui": "00:1B:0D", "weight": 2, "os": ["Cisco IP Phone"]},  # Cisco Systems (VoIP phones only)
     {"name": "Zebra", "oui": "00:A0:F8", "weight": 3, "os": ["Android 11", "Android 10"]},  # Zebra Technologies (scanners)
     {"name": "Honeywell", "oui": "00:40:84", "weight": 2, "os": ["Android 10"]},  # Honeywell (scanners)
-    {"name": "Epson", "oui": "00:26:AB", "weight": 2, "os": ["Embedded"]},  # Seiko Epson (printers)
-    {"name": "Canon", "oui": "00:1E:8F", "weight": 2, "os": ["Embedded"]},  # Canon Inc (printers)
+
+    # IP Cameras and IoT sensors
     {"name": "Axis", "oui": "00:40:8C", "weight": 1, "os": ["Embedded"]},  # Axis Communications (IP cameras)
     {"name": "Texas Instruments", "oui": "00:17:E5", "weight": 1, "os": ["Embedded"]},  # TI (IoT sensors)
+
+    # Medical devices - always wired, high priority VLAN
+    {"name": "GE", "oui": "00:00:9A", "weight": 1, "os": ["Embedded"]},  # GE Medical Systems
+    {"name": "Philips", "oui": "00:1E:C0", "weight": 1, "os": ["Embedded"]},  # Philips Healthcare
 ]
+
+# Lookup table mapping human-readable device type keys to OUI prefixes
+# Used by topology files to specify required device types
+# Format: "device_type_key" -> OUI prefix
+DEVICE_TYPE_BY_KEY = {
+    # Apple devices
+    "Apple Mobile": "3C:E0:72",      # iPhone/iPad
+    "Apple Mac": "A4:83:E7",         # MacBook/iMac
+    # Samsung devices
+    "Samsung Mobile": "84:25:DB",    # Galaxy phones/tablets
+    "Samsung TV": "8C:79:F5",        # Smart TVs
+    # HP devices
+    "HP Laptop": "10:B6:76",         # Laptops/Desktops
+    "HP Printer": "C8:B5:AD",        # Printers
+    # Other user devices
+    "Dell": "F8:B1:56",
+    "Lenovo": "28:D2:44",
+    "Microsoft": "28:18:78",
+    "Intel": "A4:34:D9",
+    "Google": "F4:F5:D8",
+    # Printers
+    "Epson": "00:26:AB",
+    "Canon": "00:1E:8F",
+    # TVs
+    "LG TV": "A8:23:FE",
+    # VoIP and scanners
+    "Cisco": "00:1B:0D",
+    "Zebra": "00:A0:F8",
+    "Honeywell": "00:40:84",
+    # IP Cameras and IoT
+    "Axis": "00:40:8C",
+    "Texas Instruments": "00:17:E5",
+    # Medical
+    "GE Healthcare": "00:00:9A",
+    "Philips Medical": "00:1E:C0",
+}
+
+# Build reverse lookup: OUI -> manufacturer entry (for required_manufacturers)
+MANUFACTURER_BY_OUI = {m["oui"]: m for m in CLIENT_MANUFACTURERS}
 
 # Device types with usage patterns
 DEVICE_TYPES = [
@@ -46,6 +102,8 @@ DEVICE_TYPES = [
     {"type": "VoIP Phone", "weight": 5, "sent_range": (500_000_000, 2_000_000_000), "recv_range": (500_000_000, 2_000_000_000)},
     {"type": "IoT Sensor", "weight": 3, "sent_range": (1_000_000, 10_000_000), "recv_range": (5_000_000, 50_000_000)},
     {"type": "Camera", "weight": 2, "sent_range": (5_000_000_000, 50_000_000_000), "recv_range": (10_000_000, 100_000_000)},
+    {"type": "Smart TV", "weight": 3, "sent_range": (100_000_000, 500_000_000), "recv_range": (2_000_000_000, 20_000_000_000)},  # High download for streaming
+    {"type": "Medical Device", "weight": 1, "sent_range": (10_000_000, 100_000_000), "recv_range": (50_000_000, 500_000_000)},  # Moderate, critical traffic
 ]
 
 # Common hostnames/descriptions
@@ -92,70 +150,127 @@ class ClientGenerator:
         fourth = (client_index % 250) + 2  # Start from .2, leave .1 for gateway
         return f"{base}.{fourth}"
 
-    def _generate_hostname_and_type(self, manufacturer: str, os: str) -> tuple[str, str]:
-        """Generate a realistic hostname and Meraki-style deviceTypePrediction."""
-        # Map manufacturer to hostname prefixes with Meraki-style device type predictions
+    def _generate_hostname_and_type(self, oui: str, os: str) -> tuple[str, str]:
+        """Generate a realistic hostname and Meraki-style deviceTypePrediction.
+
+        Args:
+            oui: The OUI prefix (e.g., '3C:E0:72') used to determine device type
+            os: The operating system string
+
+        Returns:
+            Tuple of (hostname, deviceTypePrediction)
+        """
+        # Map OUI to hostname prefixes with Meraki-style device type predictions
         # Meraki returns detailed strings like "iPhone SE, iOS9.3.5"
-        prefixes = {
-            "Apple Mobile": [
+        # Using OUI allows us to distinguish device types even with same manufacturer name
+        prefixes_by_oui = {
+            # Apple Mobile (iPhone/iPad) - OUI: 3C:E0:72
+            "3C:E0:72": [
                 ("IPHONE", lambda o: f"iPhone, {o}"),
                 ("IPAD", lambda o: f"iPad, {o}"),
             ],
-            "Apple Mac": [
+            # Apple Mac (MacBook/iMac) - OUI: A4:83:E7
+            "A4:83:E7": [
                 ("MACBOOK", lambda o: f"MacBook Pro, {o}"),
                 ("IMAC", lambda o: f"iMac, {o}"),
             ],
-            "Samsung": [
+            # Samsung Mobile (phones/tablets) - OUI: 84:25:DB
+            "84:25:DB": [
                 ("GALAXY", lambda o: f"Samsung Galaxy, {o}"),
                 ("SAMSUNG-TAB", lambda o: f"Samsung Tablet, {o}"),
             ],
-            "Dell": [
+            # Samsung TV - OUI: 8C:79:F5
+            "8C:79:F5": [
+                ("SAMSUNG-TV", lambda o: f"Samsung Smart TV, {o}"),
+                ("SMARTTV", lambda o: f"Samsung Smart TV, {o}"),
+            ],
+            # Dell - OUI: F8:B1:56
+            "F8:B1:56": [
                 ("DELL-LAPTOP", lambda o: f"Dell Laptop, {o}"),
                 ("DELL-DESKTOP", lambda o: f"Dell Desktop, {o}"),
             ],
-            "HP": [
+            # HP Laptop - OUI: 10:B6:76
+            "10:B6:76": [
                 ("HP-LAPTOP", lambda o: f"HP Laptop, {o}"),
-                ("HP-PRINTER", lambda o: "HP Printer"),
+                ("HP-DESKTOP", lambda o: f"HP Desktop, {o}"),
             ],
-            "Lenovo": [
+            # HP Printer - OUI: C8:B5:AD
+            "C8:B5:AD": [
+                ("HP-PRINTER", lambda o: "HP LaserJet Printer"),
+                ("HP-MFP", lambda o: "HP OfficeJet MFP"),
+            ],
+            # Lenovo - OUI: 28:D2:44
+            "28:D2:44": [
                 ("LENOVO", lambda o: f"Lenovo ThinkPad, {o}"),
                 ("THINKPAD", lambda o: f"Lenovo ThinkPad, {o}"),
             ],
-            "Microsoft": [
+            # Microsoft Surface - OUI: 28:18:78
+            "28:18:78": [
                 ("SURFACE", lambda o: f"Microsoft Surface, {o}"),
                 ("DEVICE", lambda o: f"Windows PC, {o}"),
             ],
-            "Google": [
+            # Intel NUC - OUI: A4:34:D9
+            "A4:34:D9": [
+                ("DEVICE", lambda o: f"Intel NUC, {o}"),
+            ],
+            # Google Pixel/Chromebook - OUI: F4:F5:D8
+            "F4:F5:D8": [
                 ("PIXEL", lambda o: f"Google Pixel, {o}"),
                 ("CHROMEBOOK", lambda o: f"Chromebook, {o}"),
             ],
-            "Cisco": [
-                ("VOIP", lambda o: "Cisco IP Phone"),  # VoIP phones only, not generic devices
+            # Epson Printer - OUI: 00:26:AB
+            "00:26:AB": [
+                ("EPSON-PRINTER", lambda o: "Epson Printer"),
             ],
-            "Zebra": [
-                ("SCANNER", lambda o: "Zebra Scanner"),  # Handheld scanners only
+            # Canon Printer - OUI: 00:1E:8F
+            "00:1E:8F": [
+                ("CANON-PRINTER", lambda o: "Canon Printer"),
             ],
-            "Honeywell": [
-                ("SCANNER", lambda o: "Honeywell Scanner"),  # Handheld scanners only
+            # LG TV - OUI: A8:23:FE
+            "A8:23:FE": [
+                ("LG-TV", lambda o: f"LG Smart TV, {o}"),
+                ("LGTV", lambda o: f"LG Smart TV, {o}"),
             ],
-            "Epson": [
-                ("PRINTER", lambda o: "Epson Printer"),
+            # Cisco VoIP - OUI: 00:1B:0D
+            "00:1B:0D": [
+                ("VOIP", lambda o: "Cisco IP Phone"),
+                ("CISCO-PHONE", lambda o: "Cisco IP Phone 8845"),
             ],
-            "Canon": [
-                ("PRINTER", lambda o: "Canon Printer"),
+            # Zebra Scanner - OUI: 00:A0:F8
+            "00:A0:F8": [
+                ("ZEBRA-SCANNER", lambda o: "Zebra Scanner"),
+                ("SCANNER", lambda o: "Zebra TC52"),
             ],
-            "Axis": [
-                ("CAMERA", lambda o: "Axis IP Camera"),
+            # Honeywell Scanner - OUI: 00:40:84
+            "00:40:84": [
+                ("HON-SCANNER", lambda o: "Honeywell Scanner"),
+                ("SCANNER", lambda o: "Honeywell CT60"),
             ],
-            "Texas Instruments": [
+            # Axis IP Camera - OUI: 00:40:8C
+            "00:40:8C": [
+                ("AXIS-CAM", lambda o: "Axis IP Camera"),
+                ("CAMERA", lambda o: "Axis P3245-V"),
+            ],
+            # Texas Instruments IoT Sensor - OUI: 00:17:E5
+            "00:17:E5": [
                 ("SENSOR", lambda o: "IoT Sensor"),
+                ("TI-SENSOR", lambda o: "Environmental Sensor"),
             ],
-            "Intel": [
-                ("DEVICE", lambda o: f"Intel NUC, {o}"),
+            # GE Healthcare - OUI: 00:00:9A
+            "00:00:9A": [
+                ("GE-MEDICAL", lambda o: "GE Patient Monitor"),
+                ("GE-MONITOR", lambda o: "GE CARESCAPE Monitor"),
+            ],
+            # Philips Healthcare - OUI: 00:1E:C0
+            "00:1E:C0": [
+                ("PHILIPS-MED", lambda o: "Philips IntelliVue"),
+                ("PATIENT-MON", lambda o: "Philips Patient Monitor"),
             ],
         }
 
-        choices = prefixes.get(manufacturer, [("DEVICE", lambda o: f"Unknown Device, {o}")])
+        # Normalize OUI to uppercase for lookup
+        oui_upper = oui.upper()
+        choices = prefixes_by_oui.get(oui_upper, [("DEVICE", lambda o: f"Unknown Device, {o}")])
         prefix, type_func = random.choice(choices)
         device_type = type_func(os)
         suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
@@ -164,7 +279,7 @@ class ClientGenerator:
     def _is_iot_device(self, hostname: str, device_type_prediction: str) -> bool:
         """Determine if a device is an IoT device based on hostname and type prediction.
 
-        IoT devices: printers, scanners, sensors, cameras, VoIP phones
+        IoT devices: printers, scanners, sensors, cameras, VoIP phones, Smart TVs, medical
         Non-IoT: laptops, desktops, phones, tablets (user devices)
         """
         hostname_upper = hostname.upper()
@@ -173,11 +288,13 @@ class ClientGenerator:
         # IoT device patterns
         iot_patterns = [
             "PRINTER", "SCANNER", "SENSOR", "CAMERA", "VOIP",
-            "NUC", "DEVICE-"  # Generic devices are often IoT
+            "NUC", "DEVICE-", "SMARTTV", "TV", "GE-", "PHILIPS-",
+            "PATIENT", "MEDICAL", "MONITOR"
         ]
         iot_type_patterns = [
             "printer", "scanner", "sensor", "camera", "ip phone",
-            "iot", "intel nuc"
+            "iot", "intel nuc", "smart tv", "television", "medical",
+            "patient", "healthcare"
         ]
 
         # Check hostname
@@ -267,7 +384,8 @@ class ClientGenerator:
         vlan_id: int,
         client_index: int,
         device_serial: Optional[str] = None,
-        vlan_subnet: Optional[str] = None
+        vlan_subnet: Optional[str] = None,
+        force_manufacturer: Optional[dict] = None
     ) -> dict:
         """
         Generate a single client with realistic attributes.
@@ -279,11 +397,12 @@ class ClientGenerator:
             client_index: Index for IP addressing
             device_serial: Optional device serial the client is connected to
             vlan_subnet: VLAN subnet in CIDR (e.g., '192.168.100.0/24') for correct IP
+            force_manufacturer: Optional manufacturer dict to force specific device type
 
         Returns:
             Client data dictionary
         """
-        manufacturer = random.choice(self._manufacturers)
+        manufacturer = force_manufacturer if force_manufacturer else random.choice(self._manufacturers)
 
         mac = self._generate_mac(manufacturer["oui"])
         # Use actual VLAN subnet if provided, otherwise fall back to VLAN ID
@@ -293,7 +412,7 @@ class ClientGenerator:
             # Fallback for backwards compatibility
             ip = f"192.168.{vlan_id}.{(client_index % 250) + 2}"
         os = random.choice(manufacturer["os"])
-        hostname, device_type_prediction = self._generate_hostname_and_type(manufacturer["name"], os)
+        hostname, device_type_prediction = self._generate_hostname_and_type(manufacturer["oui"], os)
 
         # Calculate realistic timestamps (Unix timestamps as integers per Meraki API)
         now = datetime.utcnow()
@@ -310,9 +429,18 @@ class ClientGenerator:
             "Printer": {"sent_range": (1_000_000, 50_000_000), "recv_range": (10_000_000, 100_000_000)},
             "VoIP phone": {"sent_range": (500_000_000, 2_000_000_000), "recv_range": (500_000_000, 2_000_000_000)},
             "IP camera": {"sent_range": (5_000_000_000, 50_000_000_000), "recv_range": (10_000_000, 100_000_000)},
+            "Smart TV": {"sent_range": (100_000_000, 500_000_000), "recv_range": (2_000_000_000, 20_000_000_000)},  # High download for streaming
+            "Medical": {"sent_range": (10_000_000, 100_000_000), "recv_range": (50_000_000, 500_000_000)},  # Moderate, critical traffic
             "Other": {"sent_range": (1_000_000, 100_000_000), "recv_range": (5_000_000, 200_000_000)},
         }
-        pattern = usage_patterns.get(device_type_prediction, usage_patterns["Other"])
+        # Match device type to usage pattern
+        device_type_lower = device_type_prediction.lower() if device_type_prediction else ""
+        if any(p in device_type_lower for p in ["smart tv", "television", "tizen", "webos"]):
+            pattern = usage_patterns["Smart TV"]
+        elif any(p in device_type_lower for p in ["medical", "patient", "healthcare", "intellivue", "carescape"]):
+            pattern = usage_patterns["Medical"]
+        else:
+            pattern = usage_patterns.get(device_type_prediction, usage_patterns["Other"])
         sent = random.randint(*pattern["sent_range"])
         recv = random.randint(*pattern["recv_range"])
 
@@ -372,7 +500,8 @@ class ClientGenerator:
         network_id: str,
         vlan_id: int,
         client_index: int,
-        vlan_subnet: Optional[str] = None
+        vlan_subnet: Optional[str] = None,
+        force_manufacturer: Optional[dict] = None
     ) -> dict:
         """
         Generate a network-level client (for /networks/{id}/clients endpoint).
@@ -385,11 +514,12 @@ class ClientGenerator:
             vlan_id: VLAN ID
             client_index: Index for IP addressing
             vlan_subnet: VLAN subnet in CIDR for correct IP assignment
+            force_manufacturer: Optional manufacturer dict to force specific device type
 
         Returns:
             Network client data dictionary matching Meraki API format
         """
-        base_client = self.generate_client(client_id, network_id, vlan_id, client_index, vlan_subnet=vlan_subnet)
+        base_client = self.generate_client(client_id, network_id, vlan_id, client_index, vlan_subnet=vlan_subnet, force_manufacturer=force_manufacturer)
 
         # Network clients include ALL fields per Meraki API
         return {
@@ -477,7 +607,8 @@ class ClientGenerator:
         network_id: str,
         vlans: list[dict],
         count: int,
-        devices: list[dict]
+        devices: list[dict],
+        required_manufacturers: list[str] = None
     ) -> tuple[list[dict], dict[str, list[dict]]]:
         """
         Generate clients for a network, distributed across VLANs and devices.
@@ -487,6 +618,11 @@ class ClientGenerator:
             vlans: List of VLAN configurations
             count: Total number of clients to generate
             devices: List of devices in the network
+            required_manufacturers: Optional list of device type keys that MUST appear.
+                                   Uses DEVICE_TYPE_BY_KEY lookup to map keys to OUIs.
+                                   Valid keys: "Samsung TV", "Samsung Mobile", "HP Printer",
+                                   "HP Laptop", "Apple Mobile", "Apple Mac", "LG TV",
+                                   "GE Healthcare", "Philips Medical", "Dell", "Canon", "Epson", etc.
 
         Returns:
             Tuple of (network_clients, device_clients_map)
@@ -510,6 +646,9 @@ class ClientGenerator:
         has_switches = len(switches) > 0
         has_aps = len(access_points) > 0
 
+        # Build required manufacturers lookup using device type keys -> OUI -> manufacturer
+        required_mfrs = required_manufacturers or []
+
         for i in range(count):
             # Pick a VLAN (weighted towards corporate/data VLANs)
             vlan = random.choice(vlans) if vlans else {"id": 1, "name": "Default", "subnet": "192.168.1.0/24"}
@@ -520,13 +659,23 @@ class ClientGenerator:
             # Generate client ID
             client_id = f"k{random.randint(100000, 999999)}"
 
+            # For the first N clients, use required device types if specified
+            # Device type keys (e.g., "Samsung TV", "HP Printer") map to specific OUIs
+            force_mfr = None
+            if i < len(required_mfrs):
+                device_type_key = required_mfrs[i]
+                if device_type_key in DEVICE_TYPE_BY_KEY:
+                    oui = DEVICE_TYPE_BY_KEY[device_type_key]
+                    force_mfr = MANUFACTURER_BY_OUI.get(oui)
+
             # Generate network client first to get hostname/device type
             net_client = self.generate_network_client(
                 client_id=client_id,
                 network_id=network_id,
                 vlan_id=vlan_id,
                 client_index=i,
-                vlan_subnet=vlan_subnet
+                vlan_subnet=vlan_subnet,
+                force_manufacturer=force_mfr
             )
             # Override namedVlan with actual VLAN name from topology
             net_client["namedVlan"] = vlan_name
@@ -535,19 +684,33 @@ class ClientGenerator:
             hostname = net_client.get("description", "").upper()
             device_prediction = net_client.get("deviceTypePrediction", "").lower()
 
-            # Always wireless: phones, tablets
+            # Always wireless: phones, tablets (mobile devices)
             always_wireless = any(p in hostname for p in ["IPHONE", "IPAD", "GALAXY", "PIXEL", "SAMSUNG-TAB", "TABLET"])
             always_wireless = always_wireless or any(p in device_prediction for p in ["iphone", "ipad", "galaxy", "pixel", "tablet", "android"])
 
-            # Always wired: desktops, printers, scanners, VoIP, sensors, cameras, NUCs
-            always_wired = any(p in hostname for p in ["DESKTOP", "PRINTER", "SCANNER", "VOIP", "SENSOR", "CAMERA", "NUC"])
-            always_wired = always_wired or any(p in device_prediction for p in ["desktop", "printer", "scanner", "ip phone", "voip", "sensor", "camera", "nuc"])
+            # Always wired: desktops, printers, scanners, VoIP, sensors, cameras, NUCs, medical devices
+            always_wired = any(p in hostname for p in [
+                "DESKTOP", "PRINTER", "SCANNER", "VOIP", "SENSOR", "CAMERA", "NUC",
+                "GE-", "PHILIPS-", "PATIENT", "MEDICAL", "CISCO-PHONE", "HP-PRINTER",
+                "HP-MFP", "EPSON-", "CANON-", "AXIS-", "HON-", "ZEBRA-"
+            ])
+            always_wired = always_wired or any(p in device_prediction for p in [
+                "desktop", "printer", "scanner", "ip phone", "voip", "sensor", "camera", "nuc",
+                "medical", "patient", "healthcare", "laserjet", "officejet", "intellivue", "carescape"
+            ])
+
+            # Smart TVs: 50% wired (ethernet), 50% wireless
+            is_smart_tv = any(p in hostname for p in ["SAMSUNG-TV", "LG-TV", "SMARTTV", "LGTV"])
+            is_smart_tv = is_smart_tv or any(p in device_prediction for p in ["smart tv", "television", "tizen", "webos"])
 
             # Determine is_wired based on device type
             if always_wireless:
                 is_wired = False
             elif always_wired:
                 is_wired = True
+            elif is_smart_tv:
+                # Smart TVs: 50% wired (ethernet for stable streaming), 50% wireless
+                is_wired = random.random() < 0.5
             else:
                 # Laptops, Chromebooks, MacBooks, ThinkPads, Surfaces - mix (40% wired, 60% wireless)
                 is_wired = random.random() < 0.4

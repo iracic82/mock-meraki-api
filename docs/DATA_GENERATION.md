@@ -196,18 +196,25 @@ network_clients, device_clients = gen.generate_clients_for_network(
 
 **Client Manufacturers & deviceTypePrediction:**
 
+The `manufacturer` field contains clean vendor names (matching real Meraki API), while `deviceTypePrediction` contains device details:
+
 | Manufacturer | deviceTypePrediction Examples |
 |--------------|-------------------------------|
 | Apple | "iPhone, iOS 17", "MacBook Pro, macOS Ventura", "iPad, iOS 16" |
-| Samsung | "Samsung Galaxy, Android 14", "Samsung Tablet, Android 13" |
+| Samsung | "Samsung Galaxy, Android 14", "Samsung Smart TV, Tizen OS" |
 | Dell | "Dell Laptop, Windows 11", "Dell Desktop, Windows 10" |
-| HP | "HP Laptop, Windows 11", "HP Printer" |
+| HP | "HP Laptop, Windows 11", "HP LaserJet Printer", "HP OfficeJet MFP" |
 | Lenovo | "Lenovo ThinkPad, Windows 11", "Lenovo ThinkPad, Chrome OS" |
 | Google | "Google Pixel, Android 14", "Chromebook, Chrome OS" |
-| Cisco | "Cisco IP Phone", "Cisco Device" |
-| Zebra | "Zebra Scanner", "Zebra Device, Android 11" |
+| Cisco | "Cisco IP Phone", "Cisco IP Phone 8845" |
+| Zebra | "Zebra Scanner", "Zebra TC52" |
+| LG | "LG Smart TV, webOS" |
 | Canon/Epson | "Canon Printer", "Epson Printer" |
-| IoT Device | "IoT Sensor", "IP Camera" |
+| GE | "GE Patient Monitor", "GE CARESCAPE Monitor" |
+| Philips | "Philips IntelliVue", "Philips Patient Monitor" |
+| Axis | "Axis IP Camera", "Axis P3245-V" |
+
+Note: Device type is determined by OUI (first 3 bytes of MAC), not manufacturer name. The same manufacturer (e.g., HP) can have different OUIs for different product lines (laptops vs printers).
 
 ## Creating a New Topology
 

@@ -132,12 +132,14 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
     )
     vpn_configs.append({"network_id": hq_network_id, "config": hq_vpn})
 
-    # HQ Clients - 200 clients
+    # HQ Clients - 200 clients (with Smart TVs, Printers for conference rooms)
     hq_net_clients, hq_dev_clients = client_gen.generate_clients_for_network(
         network_id=hq_network_id,
         vlans=hq_vlans,
         count=200,
-        devices=hq_devices
+        devices=hq_devices,
+        required_manufacturers=["Samsung TV", "Samsung TV", "Samsung TV", "LG TV", "LG TV",
+                                "HP Printer", "HP Printer", "HP Printer", "Canon", "Epson"]
     )
     network_clients.extend(hq_net_clients)
     device_clients.update(hq_dev_clients)
@@ -146,19 +148,30 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
     # Branch Networks (Spokes)
     # ====================================
     branch_configs = [
-        # Large branches (50 clients each) - with cameras
-        {"name": "Branch-NYC", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 8}], "cameras": [{"model": "MV33", "count": 4}, {"model": "MV63", "count": 2}], "clients": 60},
-        {"name": "Branch-Chicago", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 6}], "cameras": [{"model": "MV23", "count": 3}, {"model": "MV63X", "count": 2}], "clients": 55},
-        {"name": "Branch-LA", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 6}], "cameras": [{"model": "MV13", "count": 4}], "clients": 50},
-        {"name": "Branch-Seattle", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 5}], "cameras": [{"model": "MV23X", "count": 3}], "clients": 45},
-        {"name": "Branch-Austin", "model": "MX75", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 5}], "cameras": [{"model": "MV13M", "count": 2}], "clients": 40},
+        # Large branches (50+ clients) - with cameras, Smart TVs for conference rooms, HP Printers
+        {"name": "Branch-NYC", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 8}], "cameras": [{"model": "MV33", "count": 4}, {"model": "MV63", "count": 2}], "clients": 60,
+         "required_clients": ["Samsung TV", "Samsung TV", "LG TV", "HP Printer", "HP Printer", "Canon"]},
+        {"name": "Branch-Chicago", "model": "MX85", "switches": [{"model": "MS250-48", "count": 2}], "aps": [{"model": "MR56", "count": 6}], "cameras": [{"model": "MV23", "count": 3}, {"model": "MV63X", "count": 2}], "clients": 55,
+         "required_clients": ["Samsung TV", "LG TV", "HP Printer", "HP Printer", "Epson"]},
+        {"name": "Branch-LA", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 6}], "cameras": [{"model": "MV13", "count": 4}], "clients": 50,
+         "required_clients": ["Samsung TV", "LG TV", "HP Printer", "Canon"]},
+        {"name": "Branch-Seattle", "model": "MX75", "switches": [{"model": "MS225-48", "count": 2}], "aps": [{"model": "MR46", "count": 5}], "cameras": [{"model": "MV23X", "count": 3}], "clients": 45,
+         "required_clients": ["Samsung TV", "HP Printer", "Epson"]},
+        {"name": "Branch-Austin", "model": "MX75", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 5}], "cameras": [{"model": "MV13M", "count": 2}], "clients": 40,
+         "required_clients": ["LG TV", "HP Printer"]},
 
         # Medium branches (30 clients each) - some with cameras
-        {"name": "Branch-Denver", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "cameras": [{"model": "MV13", "count": 2}], "clients": 35},
-        {"name": "Branch-Boston", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "cameras": [{"model": "MV33M", "count": 2}], "clients": 35},
-        {"name": "Branch-Atlanta", "model": "MX68", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30},
-        {"name": "Branch-Miami", "model": "MX68", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30},
-        {"name": "Branch-Dallas", "model": "MX68W", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "sensors": [{"model": "MT10", "count": 2}], "clients": 30},
+        {"name": "Branch-Denver", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "cameras": [{"model": "MV13", "count": 2}], "clients": 35,
+         "required_clients": ["HP Printer", "Canon"]},
+        # Boston - Medical/Healthcare branch with medical devices
+        {"name": "Branch-Boston-Medical", "model": "MX68", "switches": [{"model": "MS225-48", "count": 1}], "aps": [{"model": "MR46", "count": 4}], "cameras": [{"model": "MV33M", "count": 2}], "clients": 40,
+         "required_clients": ["GE Healthcare", "GE Healthcare", "Philips Medical", "Philips Medical", "HP Printer", "Epson"]},
+        {"name": "Branch-Atlanta", "model": "MX68", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30,
+         "required_clients": ["HP Printer"]},
+        {"name": "Branch-Miami", "model": "MX68", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "clients": 30,
+         "required_clients": ["HP Printer", "Samsung TV"]},
+        {"name": "Branch-Dallas", "model": "MX68W", "switches": [{"model": "MS120-24", "count": 1}], "aps": [{"model": "MR36", "count": 3}], "sensors": [{"model": "MT10", "count": 2}], "clients": 30,
+         "required_clients": ["HP Printer"]},
 
         # Small branches (15-20 clients each)
         {"name": "Branch-Phoenix", "model": "MX68W", "switches": [], "aps": [{"model": "MR33", "count": 2}], "clients": 20},
@@ -260,12 +273,13 @@ def generate_hub_spoke_topology(seed: int = 42) -> dict:
             )
             cellular_subnet_pools.append({"network_id": network_id, "config": cellular_pool})
 
-        # Clients
+        # Clients (with optional required device types from config)
         branch_net_clients, branch_dev_clients = client_gen.generate_clients_for_network(
             network_id=network_id,
             vlans=branch_vlans,
             count=branch_config["clients"],
-            devices=branch_devices
+            devices=branch_devices,
+            required_manufacturers=branch_config.get("required_clients", [])
         )
         network_clients.extend(branch_net_clients)
         device_clients.update(branch_dev_clients)

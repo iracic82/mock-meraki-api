@@ -147,17 +147,19 @@ The default **hub-spoke** topology simulates a realistic enterprise network:
 
 ### Clients (739 total)
 
-Realistic client devices with proper `deviceTypePrediction` format matching Meraki API:
+Realistic client devices with proper `manufacturer` and `deviceTypePrediction` format matching Meraki API:
 
 | Manufacturer | Device Type Predictions |
 |--------------|------------------------|
 | Apple | `iPhone, iOS 17`, `MacBook Pro, macOS Ventura`, `iPad, iOS 16` |
-| Samsung | `Samsung Galaxy, Android 14`, `Samsung Tablet, Android 13` |
+| Samsung | `Samsung Galaxy, Android 14`, `Samsung Smart TV, Tizen OS` |
 | Dell | `Dell Laptop, Windows 11`, `Dell Desktop, Windows 10` |
+| HP | `HP Laptop, Windows 11`, `HP LaserJet Printer` |
 | Lenovo | `Lenovo ThinkPad, Windows 11` |
 | Cisco | `Cisco IP Phone` |
-| HP/Canon/Epson | `HP Printer`, `Canon Printer` |
-| IoT Device | `IoT Sensor`, `IP Camera` |
+| LG | `LG Smart TV, webOS` |
+| Canon/Epson | `Canon Printer`, `Epson Printer` |
+| GE/Philips | `GE Patient Monitor`, `Philips IntelliVue` |
 
 ## Data Generation
 
