@@ -924,150 +924,150 @@
       "name": "Device Clients - MX Appliances",
       "item": [
         {
-          "name": "Q21A-5UGX-BRYT (Branch-Austin-MX)",
+          "name": "Q2AJ-I0Y6-DPBH (HQ-MX-01)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q21A-5UGX-BRYT/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2AJ-I0Y6-DPBH/clients"
           }
         },
         {
-          "name": "Q21L-526R-QGKC (Branch-NYC-MX)",
+          "name": "Q29C-0TK1-QQFV (Branch-NYC-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q21L-526R-QGKC/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q29C-0TK1-QQFV/clients"
           }
         },
         {
-          "name": "Q26M-66SZ-VETC (Branch-Phoenix-MX)",
+          "name": "Q2VQ-HMIE-22TW (Branch-Chicago-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q26M-66SZ-VETC/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2VQ-HMIE-22TW/clients"
           }
         },
         {
-          "name": "Q26O-UGOP-RRUM (Branch-Detroit-MX)",
+          "name": "Q2E3-BYJT-H2FO (Branch-LA-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q26O-UGOP-RRUM/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2E3-BYJT-H2FO/clients"
           }
         },
         {
-          "name": "Q282-2Y0E-AP50 (Branch-Minneapolis-MX)",
+          "name": "Q2VF-1618-5IBJ (Branch-Seattle-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q282-2Y0E-AP50/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2VF-1618-5IBJ/clients"
           }
         },
         {
-          "name": "Q29Z-QNKY-P1M2 (Branch-Atlanta-MX)",
+          "name": "Q2E1-IV0B-1HI8 (Branch-Austin-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q29Z-QNKY-P1M2/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2E1-IV0B-1HI8/clients"
           }
         },
         {
-          "name": "Q2CW-QTHR-GUEW (Remote-SaltLake-MX)",
+          "name": "Q262-AHNW-GU9B (Branch-Denver-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2CW-QTHR-GUEW/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q262-AHNW-GU9B/clients"
           }
         },
         {
-          "name": "Q2D1-RL6Z-AZYX (Remote-Warehouse-MX)",
+          "name": "Q2Z8-3EJF-BOVB (Branch-Boston-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2D1-RL6Z-AZYX/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2Z8-3EJF-BOVB/clients"
           }
         },
         {
-          "name": "Q2E0-IFD0-TVBD (HQ-MX-01)",
+          "name": "Q2XQ-9S7L-KS51 (Branch-Atlanta-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2E0-IFD0-TVBD/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2XQ-9S7L-KS51/clients"
           }
         },
         {
-          "name": "Q2I6-S7PK-67IL (Branch-Boston-MX)",
+          "name": "Q2T3-UBJV-JKXX (Branch-Miami-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2I6-S7PK-67IL/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2T3-UBJV-JKXX/clients"
           }
         },
         {
-          "name": "Q2KJ-YMJB-T35Y (Branch-Seattle-MX)",
+          "name": "Q2QR-RBJV-ENE8 (Branch-Dallas-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2KJ-YMJB-T35Y/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2QR-RBJV-ENE8/clients"
           }
         },
         {
-          "name": "Q2MV-W5OX-IO25 (Branch-Portland-MX)",
+          "name": "Q2OQ-JQ8H-CQUT (Branch-Phoenix-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2MV-W5OX-IO25/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2OQ-JQ8H-CQUT/clients"
           }
         },
         {
-          "name": "Q2N5-ROUE-S0MX (Remote-Charlotte-MX)",
+          "name": "Q24G-ZTPZ-MNS7 (Branch-Portland-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2N5-ROUE-S0MX/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q24G-ZTPZ-MNS7/clients"
           }
         },
         {
-          "name": "Q2ND-JM5G-H2IJ (Branch-LA-MX)",
+          "name": "Q2U5-72F0-8D28 (Branch-Minneapolis-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2ND-JM5G-H2IJ/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2U5-72F0-8D28/clients"
           }
         },
         {
-          "name": "Q2OT-E0Q3-2RV2 (Remote-Houston-MX)",
+          "name": "Q2WV-1MM9-432B (Branch-Detroit-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2OT-E0Q3-2RV2/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2WV-1MM9-432B/clients"
           }
         },
         {
-          "name": "Q2PG-SF3Y-N72B (Branch-Chicago-MX)",
+          "name": "Q2ND-JJO9-NIFM (Branch-Philly-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2PG-SF3Y-N72B/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2ND-JJO9-NIFM/clients"
           }
         },
         {
-          "name": "Q2QP-Y6N7-QLBW (Branch-Miami-MX)",
+          "name": "Q2NO-6C6Z-H6DU (Remote-SanDiego-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2QP-Y6N7-QLBW/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2NO-6C6Z-H6DU/clients"
           }
         },
         {
-          "name": "Q2RN-0T1K-KUW6 (Remote-SanDiego-MX)",
+          "name": "Q22I-C7PP-7KO2 (Remote-Houston-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2RN-0T1K-KUW6/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q22I-C7PP-7KO2/clients"
           }
         },
         {
-          "name": "Q2U2-G3RX-OKPI (Branch-Dallas-MX)",
+          "name": "Q2QB-YNS7-EASW (Remote-Charlotte-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2U2-G3RX-OKPI/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2QB-YNS7-EASW/clients"
           }
         },
         {
-          "name": "Q2XO-3PEO-J3M4 (Branch-Denver-MX)",
+          "name": "Q23K-JDYV-Y96Q (Remote-SaltLake-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2XO-3PEO-J3M4/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q23K-JDYV-Y96Q/clients"
           }
         },
         {
-          "name": "Q2YX-2OWI-L4LT (Branch-Philly-MX)",
+          "name": "Q2W3-FH72-NMCE (Remote-Warehouse-MX)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/devices/Q2YX-2OWI-L4LT/clients"
+            "url": "{{baseUrl}}/api/v1/devices/Q2W3-FH72-NMCE/clients"
           }
         }
       ]
